@@ -1,4 +1,4 @@
-module Neutron (Neutron,advance) where
+module Neutron (Neutron,advance,position,velocity) where
 
 import Data.List (intersperse)
 import System.Random

@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Vec (Vec,dot,cross,scale) where
+module Vec (Vec,dot,cross,scale,x,y,z) where
 
 import Control.Applicative ((<*>))
 import Data.List (intersperse)
