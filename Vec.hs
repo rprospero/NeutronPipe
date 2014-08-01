@@ -3,6 +3,7 @@ module Vec (Vec,dot,cross,scale) where
 
 import Control.Applicative ((<*>))
 import Data.List (intersperse)
+import System.Random
 
 data Vec a = Vec {x :: a, y :: a, z :: a}
 
@@ -27,3 +28,17 @@ cross i j = Vec (y i * z j - z i * y j)
 
 scale :: Num a => a -> Vec a -> Vec a
 scale s v = Vec (s * x v) (s * y v) (s * z v)
+
+instance Random a => Random (Vec a) where
+    randomR (lo, hi) g =
+        let (x',g1) = randomR (x lo, x hi) g
+            (y',g2) = randomR (y lo, y hi) g1
+            (z',g3) = randomR (z lo, z hi) g2
+        in
+          (Vec x' y' z',g3)
+    random g =
+        let (x',g1) = random g
+            (y',g2) = random g1
+            (z',g3) = random g2
+        in
+          (Vec x' y' z',g3)
