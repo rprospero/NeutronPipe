@@ -7,6 +7,8 @@ import Neutron
 import Vec
 import Pipes
 
+import Slits (slit)
+
 source :: Producer (Neutron Double) IO ()
 source = forever $ do
            g <- lift getStdGen
@@ -19,13 +21,4 @@ detector = forever $ do
   temp <- await
   lift $ print temp
 
-slit :: (Fractional a, Ord a) => Pipe (Neutron a) (Neutron a) IO ()
-slit = forever $ do
-         n <- await
-         if (x . position $ n) < 0.5
-         then
-             yield n
-         else
-             discard n
-
-main = runEffect $ source >-> slit >-> detector
+main = runEffect $ source >-> slit (Vec 0.2 0.7 (-10)) (Vec 0.3 0.9 10) >-> detector
