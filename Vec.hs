@@ -1,4 +1,4 @@
-module Vec (Vec) where
+module Vec (Vec,dot,cross,scale) where
 
 import Control.Applicative ((<*>))
 
@@ -11,6 +11,9 @@ cross :: Num a => Vec a -> Vec a -> Vec a
 cross i j = Vec (y i * z j - z i * y j)
                 (z i * x j - x i * z j)
                 (x i * y j - y i * x j)
+
+scale :: Num a => a -> Vec a -> Vec a
+scale s v = Vec (s * x v) (s * y v) (s * z v)
 
 instance Num a => Num (Vec a) where
     (+) i j = Vec (x i + x j) (y i + y j) (z i + z j)
