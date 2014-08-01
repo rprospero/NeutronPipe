@@ -59,7 +59,8 @@ executable NeutronPipe
   -- Other library packages from which modules are imported.
   build-depends:       base >=4.7 && <4.8,
                        pipes,
-                       pipes-concurrency
+                       pipes-concurrency,
+                       random
   
   -- Directories containing source files.
   -- hs-source-dirs:      
