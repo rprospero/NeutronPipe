@@ -24,6 +24,11 @@ data Vec a = Vec {x :: a, -- ^ x coordinate
                   z :: a  -- ^ z coordinate
                  }
 
+instance Eq a => Eq (Vec a) where
+    (==) i j = and [x i == x j,
+                    y i == y j,
+                    z i == z j]
+
 instance Show a => Show (Vec a) where
     -- | Standard showing with "Vec" followed by the individual components
     show v = ("Vec " ++) . concat . intersperse " " . map show $ [x v, y v, z v]
