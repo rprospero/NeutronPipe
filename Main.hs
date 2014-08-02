@@ -1,3 +1,13 @@
+{-|
+Module      : Main
+Description : A simulator for neutron beamlines
+Copyright   : (c) Adam Washington, 2014
+License     : MIT
+Maintainer  : adam.l.washington@gmail.com
+Stability   : experimental
+Portability : POSIX
+
+This module performs a monte-carlo simulation of a neutron beamline.-}
 module Main (main) where
 
 import Control.Monad (forever)
@@ -21,4 +31,5 @@ detector = forever $ do
   temp <- await
   lift $ print temp
 
+-- | Simulate the beamline
 main = runEffect $ source >-> slit (Vec 0.2 0.7 (-10)) (Vec 0.3 0.9 10) >-> detector
