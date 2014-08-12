@@ -13,7 +13,9 @@ metropolis f = do
   base <- getRandom
   steps <- getRandoms
   tests <- getRandoms
-  return $ scanl (met' f) base $ zip steps tests
+  return $ scanl (met' f) base $ zip (map rescale steps) tests
+
+rescale x = fromInteger 2 * x - fromInteger 1
 
 met'
   :: (Ord a, Num a1, Fractional a) =>
