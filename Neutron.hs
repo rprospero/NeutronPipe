@@ -10,7 +10,7 @@ Portability : POSIX
 This module allows for simulating a neutron trajectory in a classical way.
 
 -}
-module Neutron (Neutron,advance,position,velocity) where
+module Neutron (Neutron(Neutron),advance,position,velocity) where
 
 import Data.List (intersperse)
 import System.Random
