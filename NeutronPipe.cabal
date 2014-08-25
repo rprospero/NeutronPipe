@@ -60,6 +60,14 @@ executable NeutronPipe
   build-depends:       base >=4.7 && <4.8,
                        pipes,
                        pipes-concurrency,
+                       lens,
+                       data-default-class,
+                       colour,
+                       vector,
+                       transformers,
+                       Chart,
+                       Chart-cairo,
+                       Chart-gtk,
                        random
   
   -- Directories containing source files.
