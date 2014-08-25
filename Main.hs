@@ -12,12 +12,19 @@ module Main (main) where
 
 import Control.Monad (forever)
 import System.Random
-
 import Neutron
 import Vec
 import Pipes
+import qualified Pipes.Lift as PL
+import qualified Pipes.Prelude as P
 
 import Slits (slit)
+import Detector (dumpToFile)
+
+import Graphics.Rendering.Chart
+import Graphics.Rendering.Chart.Backend.Cairo
+import Control.Lens
+import Data.Default.Class
 
 source :: Producer (Neutron Double) IO ()
 source = forever $ do
@@ -26,10 +33,17 @@ source = forever $ do
            yield a
            lift $ setStdGen g2
 
-detector :: (Num a, Show a) => Consumer (Neutron a) IO ()
-detector = forever $ do
-  temp <- await
-  lift $ print temp
 
 -- | Simulate the beamline
-main = runEffect $ source >-> slit (Vec 0.2 0.7 (-10)) (Vec 0.3 0.9 10) >-> detector
+main = runEffect $ source >-> slit (Vec 0.2 0.7 (-10)) (Vec 0.3 0.9 10) >-> P.take 1000 >-> dumpToFile "test2.dat"
+
+-- main = def & plot_bars_style .~ BarsStacked
+--       & plot_bars_item_styles .~
+--           [ (FillStyleSolid $ withOpacity (sRGB24 255 0 0) 100, Nothing)
+--           , (FillStyleSolid $ withOpacity (sRGB24 0 255 0) 100, Nothing)
+--           ]
+--       & plot_bars_titles .~ [ "Downvotes", "Upvotes" ]
+--       & plot_bars_values .~ dataPoints
+--  where
+--   dataPoints =
+--    zip [1..] $ map (sequence [blogPostDownvotes, blogPostUpvotes]) blogPosts
