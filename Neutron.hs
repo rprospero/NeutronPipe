@@ -12,10 +12,10 @@ This module allows for simulating a neutron trajectory in a classical way.
 -}
 module Neutron (Neutron(Neutron),advance,position,velocity) where
 
-import Data.List (intersperse)
-import System.Random
+import           Data.List     (intersperse)
+import           System.Random
 
-import Vec
+import           Vec
 
 -- | Holds the data for a simulate neutron trajectory
 data Neutron a = Neutron {position :: Vec a, -- ^ The location of the neutron
