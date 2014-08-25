@@ -2,3 +2,6 @@
 *.hi
 *.o
 /dist/
+*.prof
+*.png
+*.dat
