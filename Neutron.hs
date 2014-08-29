@@ -10,7 +10,7 @@ Portability : POSIX
 This module allows for simulating a neutron trajectory in a classical way.
 
 -}
-module Neutron (Neutron(Neutron),advance,position,velocity) where
+module Neutron (Neutron(Neutron),advance,position,velocity,intensity) where
 
 import           System.Random
 
@@ -18,6 +18,7 @@ import           Vec
 
 -- | Holds the data for a simulate neutron trajectory
 data Neutron a = Neutron {position :: Vec a, -- ^ The location of the neutron
+                          intensity :: a, -- ^ The intensity of this neutron path
                           velocity :: Vec a  -- ^ The direction and speed of the neutron's motion
                          }
 
@@ -29,14 +30,14 @@ advance :: Num a => a -> Neutron a -> Neutron a
 -- ^ The first argument is the time which has passed.
 advance t n = n {position = position n + scale t (velocity n)}
 
-instance Random a => Random (Neutron a) where
+instance (Num a, Random a) => Random (Neutron a) where
     randomR (lo, hi) g =
         let (p, g1) = randomR (position lo, position hi) g
             (v, g2) = randomR (velocity lo, velocity hi) g1
         in
-          (Neutron p v, g2)
+          (Neutron p 1 v, g2)
     random g =
         let (p, g1) = random g
             (v, g2) = random g1
         in
-          (Neutron p v, g2)
+          (Neutron p 1 v, g2)
