@@ -21,7 +21,7 @@ import qualified Pipes.Lift as PL
 import qualified Pipes.Prelude as P
 
 import Slits (slit)
-import Detector (dumpToFile)
+import Detector (dumpToConsole)
 
 source :: Producer (Neutron Double) IO ()
 source = forever $ do
@@ -32,7 +32,7 @@ source = forever $ do
 
 
 -- | Simulate the beamline
-main = runEffect $ source >-> slit (Vec 0.2 0.7 (-10)) (Vec 0.3 0.9 10) >-> P.take 1000 >-> dumpToFile "test2.dat"
+main = runEffect $ source >-> slit (Vec 0.2 0.7 (-10)) (Vec 0.3 0.9 10) >-> P.take 1000 >-> dumpToConsole
 
 -- main = def & plot_bars_style .~ BarsStacked
 --       & plot_bars_item_styles .~

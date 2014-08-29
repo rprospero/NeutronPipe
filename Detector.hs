@@ -1,4 +1,4 @@
-module Detector (detector,dumpToFile) where
+module Detector (detector,dumpToFile,dumpToConsole) where
 
 import Pipes
 import Pipes.Lift
@@ -25,6 +25,11 @@ dumpToFile file = forever $ do
                     h <- lift $ openFile file AppendMode
                     lift $ hPutStr h . (++ "\n") . show $ temp
                     lift $ hClose h
+
+dumpToConsole :: (Show a) => Consumer a IO ()
+dumpToConsole = forever $ do
+                  temp <- await
+                  lift $ print . (++ "\n") . show $ temp
 
 norm :: Double -> Double
 norm = exp . (* (-1) ) . (\x -> x*x)
