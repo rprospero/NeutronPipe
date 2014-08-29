@@ -31,6 +31,7 @@ source = forever $ do
            yield a
 
 
+main :: IO ()
 -- | Simulate the beamline
 main = runEffect $ source >-> slit (Vec 0.2 0.7 (-10)) (Vec 0.3 0.9 10) >-> P.take 1000 >-> dumpToConsole
 

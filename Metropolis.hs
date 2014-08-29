@@ -3,8 +3,6 @@ module Metropolis (metropolis) where
 import System.Random
 import Control.Monad.Random.Class
 
-norm x = exp (-1 * x**2)
-
 metropolis
   :: (MonadRandom m, Random a, Random b, Ord a, Num b,
       Fractional a) =>
@@ -15,7 +13,8 @@ metropolis f = do
   tests <- getRandoms
   return $ scanl (met' f) base $ zip (map rescale steps) tests
 
-rescale x = fromInteger 2 * x - fromInteger 1
+rescale :: Num a => a -> a
+rescale x = 2 * x - 1
 
 met'
   :: (Ord a, Num a1, Fractional a) =>

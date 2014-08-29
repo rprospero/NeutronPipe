@@ -12,7 +12,6 @@ This module allows for simulating a neutron trajectory in a classical way.
 -}
 module Neutron (Neutron(Neutron),advance,position,velocity) where
 
-import           Data.List     (intersperse)
 --import           System.Random
 import Haste (Random,randomR)
 
@@ -24,7 +23,7 @@ data Neutron a = Neutron {position :: Vec a, -- ^ The location of the neutron
                          }
 
 instance Show a => Show (Neutron a) where
-    show n = ("Neutron " ++) . concat . intersperse " " . map show $ [position n, velocity n]
+    show n = ("Neutron " ++) . unwords . map show $ [position n, velocity n]
 
 advance :: Num a => a -> Neutron a -> Neutron a
 -- ^ Progress forward in time, allowing a neutron to follow its velocity.
