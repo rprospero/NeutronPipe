@@ -1,4 +1,5 @@
-module Detector (detector,dumpToFile,dumpToConsole,pipeOver,xcoord,binner) where
+module Detector (detector,dumpToFile,dumpToConsole,pipeOver,
+                         xcoord,binner,histPipe) where
 
 import Pipes
 import Pipes.Lift
@@ -61,3 +62,32 @@ xcoord = forever $ do
            temp <- await
            yield $ x . position $ temp
 
+
+
+--- Pipe for performing histogramming
+
+
+
+toBin :: Int -> (Double,Double) -> Double -> Int
+toBin steps (low,high) n = let temp = fromIntegral steps * (n-low)/(high-low)
+                         in
+                           if temp < 0
+                           then 0
+                           else if round temp > steps
+                                then steps
+                                else round temp
+
+updateList :: Int -> a -> [a] -> [a]
+updateList index n xs = take (index-1) xs ++ (n : drop index xs)
+
+updateBins' :: Int -> [Int] -> [Int]
+updateBins' n xs = updateList (n+1) (1 + xs !! n) xs
+
+updateBins :: (Double->Int) -> Double -> [Int] -> [Int]
+updateBins f n = updateBins' (f n)
+
+histPipe :: Monad m => (a -> Double) -> Int -> (Double,Double) -> Pipe a [Int] m r
+histPipe f bins range = pipeOver zeroList updater
+    where
+      zeroList = replicate bins 0
+      updater = updateBins (toBin bins range) . f
