@@ -11,23 +11,14 @@ This module performs a monte-carlo simulation of a neutron beamline.-}
 module Main (main) where
 
 import Control.Monad (forever)
-import System.Random
 import Neutron
 import Vec
 import Pipes
-import qualified Pipes.Lift as PL
 import qualified Pipes.Prelude as P
 
 import Slits (slit)
 import Detector (dumpToConsole,histPipe)
-
-source :: Producer (Neutron Double) IO ()
-source = forever $ do
-           g <- lift getStdGen
-           let (a,g2) = random g
-           yield a
-           lift $ setStdGen g2
-
+import Source (source)
 
 main :: IO ()
 -- | Simulate the beamline
