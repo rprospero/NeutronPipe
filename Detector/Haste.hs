@@ -3,8 +3,7 @@ module Detector.Haste (plotHists) where
 import Pipes
 import Control.Monad (forever,zipWithM_)
     
-import Haste.Graphics.Canvas
-import Haste
+import Haste.Graphics.Canvas (getCanvasById, stroke, line, render)
 
 
 plotHists :: Consumer [Int] IO ()
@@ -15,4 +14,4 @@ plotHists = forever $ do
               let xs = map (fromIntegral . (*10)) [0..n]
               let ps = zip xs $ map fromIntegral ys
               let lines = zipWithM_ line ps (drop 1 ps)
-              setTimeout 3000 $ render c $ stroke  lines
+              render c $ stroke  lines
