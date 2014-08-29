@@ -21,7 +21,9 @@ import qualified Pipes.Lift as PL
 import qualified Pipes.Prelude as P
 
 import Slits (slit)
-import Detector (dumpToConsole,histPipe)
+import Detector (histPipe)
+import Detector.Haste
+
 
 source :: Producer (Neutron Double) IO ()
 source = forever $ do
@@ -34,4 +36,4 @@ source = forever $ do
 main :: IO ()
 -- | Simulate the beamline
 main = runEffect $ source >-> slit (Vec 0.2 0.7 (-10)) (Vec 0.4 0.9 10) >->
-                   P.take 1000 >-> histPipe (x.position) 40 (0,1) >-> dumpToConsole
+                   P.take 1000 >-> histPipe (x.position) 40 (0,1) >-> plotHists
