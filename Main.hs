@@ -21,7 +21,7 @@ import qualified Pipes.Lift as PL
 import qualified Pipes.Prelude as P
 
 import Slits (slit)
-import Detector (dumpToConsole)
+import Detector (dumpToConsole,histPipe)
 
 source :: Producer (Neutron Double) IO ()
 source = forever $ do
@@ -33,15 +33,5 @@ source = forever $ do
 
 main :: IO ()
 -- | Simulate the beamline
-main = runEffect $ source >-> slit (Vec 0.2 0.7 (-10)) (Vec 0.3 0.9 10) >-> P.take 1000 >-> dumpToConsole
-
--- main = def & plot_bars_style .~ BarsStacked
---       & plot_bars_item_styles .~
---           [ (FillStyleSolid $ withOpacity (sRGB24 255 0 0) 100, Nothing)
---           , (FillStyleSolid $ withOpacity (sRGB24 0 255 0) 100, Nothing)
---           ]
---       & plot_bars_titles .~ [ "Downvotes", "Upvotes" ]
---       & plot_bars_values .~ dataPoints
---  where
---   dataPoints =
---    zip [1..] $ map (sequence [blogPostDownvotes, blogPostUpvotes]) blogPosts
+main = runEffect $ source >-> slit (Vec 0.2 0.7 (-10)) (Vec 0.4 0.9 10) >->
+                   P.take 1000 >-> histPipe (x.position) 40 (0,1) >-> dumpToConsole
