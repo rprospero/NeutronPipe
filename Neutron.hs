@@ -1,7 +1,8 @@
-module Neutron (Neutron,advance,position,velocity) where
+module Neutron (Neutron(Neutron),advance,position,velocity) where
 
 import Data.List (intersperse)
-import System.Random
+--import System.Random
+import Haste (Random,randomR)
 
 import Vec
 
@@ -18,10 +19,5 @@ instance Random a => Random (Neutron a) where
     randomR (lo, hi) g =
         let (p, g1) = randomR (position lo, position hi) g
             (v, g2) = randomR (velocity lo, velocity hi) g1
-        in
-          (Neutron p v, g2)
-    random g =
-        let (p, g1) = random g
-            (v, g2) = random g1
         in
           (Neutron p v, g2)

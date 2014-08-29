@@ -1,7 +1,8 @@
 module Main (main) where
 
 import Control.Monad (forever)
-import System.Random
+--import System.Random
+import Haste (randomR,newSeed)
 
 import Neutron
 import Vec
@@ -11,10 +12,10 @@ import Slits (slit)
 
 source :: Producer (Neutron Double) IO ()
 source = forever $ do
-           g <- lift getStdGen
-           let (a,g2) = random g
+           g <- newSeed
+           let (a,_) = randomR (Neutron (Vec 0 0 0) (Vec 0 0 0),
+                                         Neutron (Vec 1 1 1) (Vec 1 1 1)) g
            yield a
-           lift $ setStdGen g2
 
 detector :: (Num a, Show a) => Consumer (Neutron a) IO ()
 detector = forever $ do

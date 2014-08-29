@@ -3,7 +3,8 @@ module Vec (Vec(Vec),dot,cross,scale,x,y,z) where
 
 import Control.Applicative ((<*>))
 import Data.List (intersperse)
-import System.Random
+--import System.Random
+import Haste (Random,randomR)
 
 data Vec a = Vec {x :: a, y :: a, z :: a}
 
@@ -34,11 +35,5 @@ instance Random a => Random (Vec a) where
         let (x',g1) = randomR (x lo, x hi) g
             (y',g2) = randomR (y lo, y hi) g1
             (z',g3) = randomR (z lo, z hi) g2
-        in
-          (Vec x' y' z',g3)
-    random g =
-        let (x',g1) = random g
-            (y',g2) = random g1
-            (z',g3) = random g2
         in
           (Vec x' y' z',g3)
