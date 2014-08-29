@@ -21,11 +21,6 @@ import qualified Pipes.Prelude as P
 import Slits (slit)
 import Detector (dumpToConsole)
 
-import Graphics.Rendering.Chart
-import Graphics.Rendering.Chart.Backend.Cairo
-import Control.Lens
-import Data.Default.Class
-
 source :: Producer (Neutron Double) IO ()
 source = forever $ do
            g <- lift getStdGen
@@ -34,6 +29,7 @@ source = forever $ do
            lift $ setStdGen g2
 
 
+main :: IO ()
 -- | Simulate the beamline
 main = runEffect $ source >-> slit (Vec 0.2 0.7 (-10)) (Vec 0.3 0.9 10) >-> P.take 1000 >-> dumpToConsole
 

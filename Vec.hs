@@ -14,8 +14,6 @@ better module written by a more competent programmer.  -}
 
 module Vec (Vec(Vec,x,y,z),dot,cross,scale) where
 
-import Control.Applicative ((<*>))
-import Data.List (intersperse)
 import System.Random
 
 -- | A data type for 3-vectors
@@ -25,13 +23,11 @@ data Vec a = Vec {x :: a, -- ^ x coordinate
                  }
 
 instance Eq a => Eq (Vec a) where
-    (==) i j = and [x i == x j,
-                    y i == y j,
-                    z i == z j]
+    (==) i j = x i == x j && y i == y j && z i == z j
 
 instance Show a => Show (Vec a) where
     -- | Standard showing with "Vec" followed by the individual components
-    show v = ("Vec " ++) . concat . intersperse " " . map show $ [x v, y v, z v]
+    show v = ("Vec " ++) . unwords . map show $ [x v, y v, z v]
 
 instance Num a => Num (Vec a) where
     -- | Vector Elements are added componentwise
