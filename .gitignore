@@ -4,3 +4,8 @@
 /dist/
 *.js
 main
+Main
+*.prof
+*.png
+*.dat
+
