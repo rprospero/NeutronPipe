@@ -18,9 +18,14 @@ import qualified Pipes.Prelude as P
 
 import Slits (slit)
 import Detector (dumpToConsole,histPipe)
-import Source (source)
+import Source (simpleSource,Area(Rect,Circle))
+
+startbox :: Area Double
+startbox = Rect 1 1
+targetbox :: Area Double
+targetbox = Circle 1
 
 main :: IO ()
 -- | Simulate the beamline
-main = runEffect $ source >-> slit (Vec 0.2 0.7 (-10)) (Vec 0.4 0.9 10) >->
+main = runEffect $ simpleSource startbox targetbox 1 >-> slit (Vec 0 0 (-10)) (Vec 0.4 0.9 10) >->
                    P.take 1000 >-> histPipe (x.position) 40 (0,1) >-> dumpToConsole
