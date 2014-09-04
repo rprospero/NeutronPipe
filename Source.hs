@@ -8,11 +8,6 @@ import Vec
 import System.Random
 import Control.Monad.Random.Class
 
-generalSource p v = forever $ do
-                      pos <- lift $ metropolis p
-                      vel <- lift $ metropolis v
-                      yield $ pos
-
 source :: Producer (Neutron Double) IO ()
 source = forever $ do
            g <- lift getStdGen
