@@ -10,9 +10,11 @@ Portability : POSIX
 This module allows for simulating a neutron trajectory in a classical way.
 
 -}
-module Neutron (Neutron(Neutron),advance,position,velocity,intensity,setSpeed,Momentum(Momentum,Wavelength,Energy,Speed),getSpeed,getMomentum,getEnergy,getWavelength,rawMomentumValue) where
+module Neutron (Neutron(Neutron),advance,position,velocity,intensity,setSpeed,Momentum(Momentum,Wavelength,Energy,Speed),getSpeed,getMomentum,getEnergy,getWavelength,rawMomentumValue,getRandomMomentum) where
 
 import           System.Random
+import Control.Monad (liftM)
+import Control.Monad.Random.Class
 
 import           Vec
 
@@ -45,6 +47,31 @@ instance (Num a, Random a) => Random (Neutron a) where
 
 data Momentum a = Speed a | Energy a | Wavelength a | Momentum a
                 deriving (Eq,Ord,Show)
+instance (Num a) => Num (Momentum a) where
+    (+) (Speed a) (Speed b) = Speed (a+b)
+    (+) (Energy a) (Energy b) = Energy (a+b)
+    (+) (Momentum a) (Momentum b) = Momentum (a+b)
+    (+) (Wavelength a) (Wavelength b) = Wavelength (a+b)
+    (-) (Speed a) (Speed b) = Speed (a-b)
+    (-) (Energy a) (Energy b) = Energy (a-b)
+    (-) (Momentum a) (Momentum b) = Momentum (a-b)
+    (-) (Wavelength a) (Wavelength b) = Wavelength (a-b)
+    (*) _ _ = error "Unphysical Value"
+    abs (Speed a) = Speed (abs a)
+    abs (Energy a) = Energy (abs a)
+    abs (Momentum a) = Momentum (abs a)
+    abs (Wavelength a) = Wavelength (abs a)
+    signum (Speed a) = Speed (signum a)
+    signum (Energy a) = Energy (signum a)
+    signum (Momentum a) = Momentum (signum a)
+    signum (Wavelength a) = Wavelength (signum a)
+    fromInteger = Speed . fromInteger
+
+getRandomMomentum :: (Random a,MonadRandom m, Num a) => Momentum a -> m (Momentum a)
+getRandomMomentum (Speed a) = liftM Speed $ getRandomR (-a, a)
+getRandomMomentum (Momentum a) = liftM Momentum $ getRandomR (-a, a)
+getRandomMomentum (Wavelength a) = liftM Wavelength $ getRandomR (-a, a)
+getRandomMomentum (Energy a) = liftM Energy $ getRandomR (-a, a)
 
 neutronMass :: Floating a => a
 neutronMass = 1.67492735174e-27
