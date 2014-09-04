@@ -22,7 +22,7 @@ source = forever $ do
 
 data Area a = Circle a | Rect a a
 
-inArea :: MonadRandom m => Area Double -> Double -> m (Vec Double)
+inArea :: (MonadRandom m, Floating a, Random a) => Area a -> a -> m (Vec a)
 inArea (Circle r) d = do
   rho <- getRandom
   phi <- getRandom
@@ -36,7 +36,7 @@ inArea (Rect h w) d = do
   let y0 = h * (y-0.5)
   return (Vec x0 y0 d)
 
-simpleSource :: Area Double -> Area Double -> Double -> Producer (Neutron Double) IO ()
+simpleSource :: (Floating a, Random a) => Area a -> Area a -> a -> Producer (Neutron a) IO ()
 simpleSource startArea targetArea distance = forever $
                                              do
                                                start <- lift $ inArea startArea 0
