@@ -32,19 +32,6 @@ advance :: Num a => a -> Neutron a -> Neutron a
 -- ^ The first argument is the time which has passed.
 advance t n = n {position = position n + scale t (velocity n)}
 
-instance (Num a, Random a) => Random (Neutron a) where
-    randomR (lo, hi) g =
-        let (p, g1) = randomR (position lo, position hi) g
-            (v, g2) = randomR (velocity lo, velocity hi) g1
-        in
-          (Neutron p 1 v, g2)
-    random g =
-        let (p, g1) = random g
-            (v, g2) = random g1
-        in
-          (Neutron p 1 v, g2)
-
-
 data Momentum a = Speed a | Energy a | Wavelength a | Momentum a
                 deriving (Eq,Ord,Show)
 instance (Num a) => Num (Momentum a) where
