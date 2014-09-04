@@ -10,7 +10,7 @@ Portability : POSIX
 This module allows for simulating a neutron trajectory in a classical way.
 
 -}
-module Neutron (Neutron(Neutron),advance,position,velocity,intensity) where
+module Neutron (Neutron(Neutron),advance,position,velocity,intensity,setSpeed,Momentum(Momentum,Wavelength,Energy,Speed),getSpeed,getMomentum,getEnergy,getWavelength) where
 
 import           System.Random
 
@@ -41,3 +41,29 @@ instance (Num a, Random a) => Random (Neutron a) where
             (v, g2) = random g1
         in
           (Neutron p 1 v, g2)
+
+
+data Momentum a = Speed a | Energy a | Wavelength a | Momentum a
+
+neutronMass :: Floating a => a
+neutronMass = 1.67492735174e-27
+planck :: Floating a => a
+planck = 6.62606957e-34
+
+toSpeed' :: Floating a => Momentum a -> a
+toSpeed' (Speed s) = s
+toSpeed' (Momentum m) = m/neutronMass
+toSpeed' (Energy e) = sqrt (2*e/neutronMass)
+toSpeed' (Wavelength l) = planck / l / neutronMass
+
+setSpeed :: Floating a => Momentum a -> Neutron a -> Neutron a
+setSpeed s n = n {velocity = rescale (toSpeed' s) $ velocity n}
+
+getSpeed :: Floating a => Neutron a -> Momentum a
+getSpeed = Speed . norm . velocity
+getMomentum :: Floating a => Neutron a -> Momentum a
+getMomentum = Momentum . (* neutronMass) . norm . velocity
+getEnergy :: Floating a => Neutron a -> Momentum a
+getEnergy = Energy . (/ 2) . (* neutronMass) . (^^ 2) . norm . velocity
+getWavelength :: Floating a => Neutron a -> Momentum a
+getWavelength = Wavelength . (planck /) . (* neutronMass) . norm . velocity
