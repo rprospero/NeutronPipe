@@ -36,12 +36,13 @@ inArea (Rect h w) d = do
   let y0 = h * (y-0.5)
   return (Vec x0 y0 d)
 
-simpleSource :: (Floating a, Random a) => Area a -> Area a -> a -> Producer (Neutron a) IO ()
-simpleSource startArea targetArea distance = forever $
-                                             do
-                                               start <- lift $ inArea startArea 0
-                                               target <- lift $ inArea targetArea distance
-                                               yield (Neutron start 1 (target-start))
+simpleSource :: (Floating a, Random a) => Area a -> Area a -> a -> Momentum a -> Producer (Neutron a) IO ()
+simpleSource startArea targetArea distance speed= forever $
+             do
+               start <- lift $ inArea startArea 0
+               target <- lift $ inArea targetArea distance
+               let neutron = Neutron start 1 (target-start)
+               yield $ setSpeed speed neutron
 
 instance MonadRandom IO where
     getRandom = randomIO

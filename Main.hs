@@ -10,9 +10,8 @@ Portability : POSIX
 This module performs a monte-carlo simulation of a neutron beamline.-}
 module Main (main) where
 
-import Control.Monad (forever)
-import Neutron
-import Vec
+import Neutron (Momentum(Energy),rawMomentumValue,getEnergy)
+import Vec (Vec(Vec))
 import Pipes
 import qualified Pipes.Prelude as P
 
@@ -27,5 +26,5 @@ targetbox = Circle 1
 
 main :: IO ()
 -- | Simulate the beamline
-main = runEffect $ simpleSource startbox targetbox 1 >-> slit (Vec 0 0 (-10)) (Vec 0.4 0.9 10) >->
-                   P.take 1000 >-> histPipe (x.position) 40 (0,1) >-> dumpToConsole
+main = runEffect $ simpleSource startbox targetbox 1 (Energy 1) >-> slit (Vec 0 0 (-10)) (Vec 0.4 0.9 10) >->
+                   P.take 1000 >-> histPipe (rawMomentumValue.getEnergy) 40 (0,2) >-> dumpToConsole
