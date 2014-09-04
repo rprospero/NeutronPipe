@@ -44,6 +44,7 @@ instance (Num a, Random a) => Random (Neutron a) where
 
 
 data Momentum a = Speed a | Energy a | Wavelength a | Momentum a
+                deriving (Eq,Ord,Show)
 
 neutronMass :: Floating a => a
 neutronMass = 1.67492735174e-27
