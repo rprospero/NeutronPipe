@@ -10,11 +10,10 @@ Portability : POSIX
 This module allows for simulating a neutron trajectory in a classical way.
 
 -}
-module Neutron (Neutron(Neutron),advance,position,velocity,intensity,setSpeed,Momentum(Momentum,Wavelength,Energy,Speed),getSpeed,getMomentum,getEnergy,getWavelength,rawMomentumValue,getRandomMomentum) where
+module Neutron (Neutron(Neutron),advance,position,velocity,intensity,setSpeed,Momentum(Momentum,Wavelength,Energy,Speed),getSpeed,getMomentum,getEnergy,getWavelength,rawMomentumValue,randomMomentum) where
 
-import           System.Random
+import Data.Random
 import Control.Monad (liftM)
-import Control.Monad.Random.Class
 
 import           Vec
 
@@ -54,11 +53,10 @@ instance (Num a) => Num (Momentum a) where
     signum (Wavelength a) = Wavelength (signum a)
     fromInteger = Speed . fromInteger
 
-getRandomMomentum :: (Random a,MonadRandom m, Num a) => Momentum a -> m (Momentum a)
-getRandomMomentum (Speed a) = liftM Speed $ getRandomR (-a, a)
-getRandomMomentum (Momentum a) = liftM Momentum $ getRandomR (-a, a)
-getRandomMomentum (Wavelength a) = liftM Wavelength $ getRandomR (-a, a)
-getRandomMomentum (Energy a) = liftM Energy $ getRandomR (-a, a)
+randomMomentum (Speed a) = liftM Speed $ uniform (-a) a
+randomMomentum (Momentum a) = liftM Momentum $ uniform (-a) a
+randomMomentum (Wavelength a) = liftM Wavelength $ uniform (-a) a
+randomMomentum (Energy a) = liftM Energy $ uniform (-a) a
 
 neutronMass :: Floating a => a
 neutronMass = 1.67492735174e-27
