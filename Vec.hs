@@ -12,7 +12,7 @@ This module performs basic 3-vector math for handling simple gemoetry
 in 3-space.  I'm sure that this will eventually be replaced by a
 better module written by a more competent programmer.  -}
 
-module Vec (Vec(Vec,x,y,z),dot,cross,scale) where
+module Vec (Vec(Vec,x,y,z),dot,cross,scale,norm,rescale) where
 
 import System.Random
 
@@ -57,6 +57,14 @@ cross i j = Vec (y i * z j - z i * y j)
 scale :: Num a => a -> Vec a -> Vec a
 scale s v = Vec (s * x v) (s * y v) (s * z v)
 
+rescale :: Floating a => a -> Vec a -> Vec a
+rescale s v = let magnitude = (s / norm v)
+              in scale magnitude v
+
+
+-- | return a the magnitude of the vector
+norm :: Floating a => Vec a -> a
+norm v = sqrt (v `dot` v)
 
 instance Random a => Random (Vec a) where
     -- | The components of the random vector will be between the components of the lo and hi vectors
