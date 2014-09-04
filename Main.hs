@@ -26,5 +26,5 @@ targetbox = Circle 1
 
 main :: IO ()
 -- | Simulate the beamline
-main = runEffect $ simpleSource startbox targetbox 1 (Energy 1) >-> slit (Vec 0 0 (-10)) (Vec 0.4 0.9 10) >->
+main = runEffect $ simpleSource startbox targetbox 1 (Energy 1) (Energy 0.1) >-> slit (Vec 0 0 (-10)) (Vec 0.4 0.9 10) >->
                    P.take 1000 >-> histPipe (rawMomentumValue.getEnergy) 40 (0,2) >-> dumpToConsole
