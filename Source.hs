@@ -1,4 +1,4 @@
-module Source (source,simpleSource,Area(Circle,Rect)) where
+module Source (simpleSource,Area(Circle,Rect)) where
 
 import Control.Monad (forever)
 import Metropolis (metropolis)
@@ -7,13 +7,6 @@ import Neutron
 import Vec
 import System.Random
 import Control.Monad.Random.Class
-
-source :: Producer (Neutron Double) IO ()
-source = forever $ do
-           g <- lift getStdGen
-           let (a,g2) = random g
-           yield a
-           lift $ setStdGen g2
 
 data Area a = Circle a | Rect a a
 
