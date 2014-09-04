@@ -59,11 +59,22 @@ toSpeed' (Wavelength l) = planck / l / neutronMass
 setSpeed :: Floating a => Momentum a -> Neutron a -> Neutron a
 setSpeed s n = n {velocity = rescale (toSpeed' s) $ velocity n}
 
+
+getSpeed' :: a -> Momentum a
+getSpeed' = Speed
+getMomentum' :: Floating a => a -> Momentum a
+getMomentum' = Momentum . (* neutronMass)
+getEnergy' :: Floating a => a -> Momentum a
+getEnergy' = Energy . (/ 2) . (* neutronMass) . (\s -> s*s)
+getWavelength' :: Floating a => a -> Momentum a
+getWavelength' = Wavelength . (planck /) . (* neutronMass)
+
+
 getSpeed :: Floating a => Neutron a -> Momentum a
-getSpeed = Speed . norm . velocity
+getSpeed = getSpeed' . norm . velocity
 getMomentum :: Floating a => Neutron a -> Momentum a
-getMomentum = Momentum . (* neutronMass) . norm . velocity
+getMomentum = getMomentum' .  norm . velocity
 getEnergy :: Floating a => Neutron a -> Momentum a
-getEnergy = Energy . (/ 2) . (* neutronMass) . (^^ 2) . norm . velocity
+getEnergy = getEnergy' . norm . velocity
 getWavelength :: Floating a => Neutron a -> Momentum a
-getWavelength = Wavelength . (planck /) . (* neutronMass) . norm . velocity
+getWavelength = getWavelength' . norm . velocity
