@@ -14,8 +14,6 @@ better module written by a more competent programmer.  -}
 
 module Vec (Vec(Vec,x,y,z),dot,cross,scale,norm,rescale) where
 
-import System.Random
-
 -- | A data type for 3-vectors
 data Vec a = Vec {x :: a, -- ^ x coordinate
                   y :: a, -- ^ y coordinate
@@ -65,19 +63,3 @@ rescale s v = let magnitude = (s / norm v)
 -- | return a the magnitude of the vector
 norm :: Floating a => Vec a -> a
 norm v = sqrt (v `dot` v)
-
-instance Random a => Random (Vec a) where
-    -- | The components of the random vector will be between the components of the lo and hi vectors
-    randomR (lo, hi) g =
-        let (x',g1) = randomR (x lo, x hi) g
-            (y',g2) = randomR (y lo, y hi) g1
-            (z',g3) = randomR (z lo, z hi) g2
-        in
-          (Vec x' y' z',g3)
-    -- | Generates a vector with random components
-    random g =
-        let (x',g1) = random g
-            (y',g2) = random g1
-            (z',g3) = random g2
-        in
-          (Vec x' y' z',g3)
