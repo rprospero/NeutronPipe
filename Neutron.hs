@@ -10,7 +10,7 @@ Portability : POSIX
 This module allows for simulating a neutron trajectory in a classical way.
 
 -}
-module Neutron (Neutron(Neutron),advance,position,velocity,intensity,setSpeed,Momentum(Momentum,Wavelength,Energy,Speed),getSpeed,getMomentum,getEnergy,getWavelength) where
+module Neutron (Neutron(Neutron),advance,position,velocity,intensity,setSpeed,Momentum(Momentum,Wavelength,Energy,Speed),getSpeed,getMomentum,getEnergy,getWavelength,rawMomentumValue) where
 
 import           System.Random
 
@@ -79,3 +79,9 @@ getEnergy :: Floating a => Neutron a -> Momentum a
 getEnergy = getEnergy' . norm . velocity
 getWavelength :: Floating a => Neutron a -> Momentum a
 getWavelength = getWavelength' . norm . velocity
+
+rawMomentumValue :: Momentum a -> a
+rawMomentumValue (Speed a) = a
+rawMomentumValue (Energy a) = a
+rawMomentumValue (Momentum a) = a
+rawMomentumValue (Wavelength a) = a
