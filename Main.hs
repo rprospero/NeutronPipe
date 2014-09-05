@@ -18,7 +18,7 @@ import qualified Pipes.Prelude as P
 import Slits (slit)
 import Detector (dumpToConsole,histPipe)
 import Source (simpleSource,Area(Rect,Circle))
-import Data.Random (uniform,RVar)
+import Data.Random (uniform,RVar,normal)
 import Control.Monad (liftM)
 
 startbox :: Area Double
@@ -27,7 +27,7 @@ targetbox :: Area Double
 targetbox = Circle 1
 
 uniformSpread :: Double -> Double -> RVar Double
-uniformSpread a b = uniform (a-b) (a+b)
+uniformSpread a b = normal a b
 
 mSpread :: Momentum Double -> Momentum Double -> RVar (Momentum Double)
 mSpread (Speed center) (Speed spread) = liftM Speed $ uniformSpread center spread
