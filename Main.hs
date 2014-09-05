@@ -19,7 +19,7 @@ import qualified Pipes.Prelude as P
 import Slits (slit)
 import Detector (dumpToConsole,histPipe)
 import Source (simpleSource,Area(Rect,Circle))
-import Data.Random (RVar,normal)
+import Data.Random (RVar,normal,uniform)
 import Control.Monad (liftM)
 
 startbox :: Area Double
@@ -28,16 +28,16 @@ targetbox :: Area Double
 targetbox = Circle 1
 
 uniformSpread :: Double -> Double -> RVar Double
-uniformSpread = normal
+uniformSpread a b = uniform (a-b) (a+b)
 
-mSpread :: Momentum Double -> Momentum Double -> RVar (Momentum Double)
-mSpread (Speed center) (Speed spread) = liftM Speed $ uniformSpread center spread
-mSpread (Energy center) (Energy spread) = liftM Energy $ uniformSpread center spread
-mSpread (Momentum center) (Momentum spread) = liftM Momentum $ uniformSpread center spread
-mSpread (Wavelength center) (Wavelength spread) = liftM Wavelength $ uniformSpread center spread
+mSpread :: (Double -> Double -> RVar Double) -> Momentum Double -> Momentum Double -> RVar (Momentum Double)
+mSpread f (Speed center) (Speed spread) = liftM Speed $ f center spread
+mSpread f (Energy center) (Energy spread) = liftM Energy $ f center spread
+mSpread f (Momentum center) (Momentum spread) = liftM Momentum $ f center spread
+mSpread f (Wavelength center) (Wavelength spread) = liftM Wavelength $ f center spread
 
 mySpread :: RVar (Momentum Double)
-mySpread = mSpread (Energy 1.0) (Energy 0.1)
+mySpread = mSpread normal (Energy 1.0) (Energy 0.1)
 
 main :: IO ()
 -- | Simulate the beamline
