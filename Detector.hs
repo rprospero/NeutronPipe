@@ -73,8 +73,8 @@ toBin steps (low,high) n = let temp = fromIntegral steps * (n-low)/(high-low)
                          in
                            if temp < 0
                            then 0
-                           else if round temp > steps
-                                then steps
+                           else if round temp > steps-1
+                                then steps-1
                                 else round temp
 
 updateList :: Int -> a -> [a] -> [a]
