@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-|
 Module      : Neutron
 Description : Performs a classical simulation of a single neutron
@@ -10,10 +11,10 @@ Portability : POSIX
 This module allows for simulating a neutron trajectory in a classical way.
 
 -}
-module Neutron (Neutron(Neutron),advance,position,velocity,intensity,setSpeed,Momentum(Momentum,Wavelength,Energy,Speed),getSpeed,getMomentum,getEnergy,getWavelength,rawMomentumValue,randomMomentum) where
+module Neutron (Neutron(Neutron),advance,position,velocity,intensity,setSpeed,Momentum(Momentum,Wavelength,Energy,Speed),getSpeed,getMomentum,getEnergy,getWavelength,randomMomentum,rawMomentumValue) where
 
 import Data.Random
-import Control.Monad (liftM)
+import Control.Applicative
 
 import           Vec
 
@@ -33,30 +34,24 @@ advance t n = n {position = position n + scale t (velocity n)}
 
 data Momentum a = Speed a | Energy a | Wavelength a | Momentum a
                 deriving (Eq,Ord,Show)
-instance (Num a) => Num (Momentum a) where
-    (+) (Speed a) (Speed b) = Speed (a+b)
-    (+) (Energy a) (Energy b) = Energy (a+b)
-    (+) (Momentum a) (Momentum b) = Momentum (a+b)
-    (+) (Wavelength a) (Wavelength b) = Wavelength (a+b)
-    (-) (Speed a) (Speed b) = Speed (a-b)
-    (-) (Energy a) (Energy b) = Energy (a-b)
-    (-) (Momentum a) (Momentum b) = Momentum (a-b)
-    (-) (Wavelength a) (Wavelength b) = Wavelength (a-b)
-    (*) _ _ = error "Unphysical Value"
-    abs (Speed a) = Speed (abs a)
-    abs (Energy a) = Energy (abs a)
-    abs (Momentum a) = Momentum (abs a)
-    abs (Wavelength a) = Wavelength (abs a)
-    signum (Speed a) = Speed (signum a)
-    signum (Energy a) = Energy (signum a)
-    signum (Momentum a) = Momentum (signum a)
-    signum (Wavelength a) = Wavelength (signum a)
-    fromInteger = Speed . fromInteger
 
-randomMomentum (Speed a) = liftM Speed $ uniform (-a) a
-randomMomentum (Momentum a) = liftM Momentum $ uniform (-a) a
-randomMomentum (Wavelength a) = liftM Wavelength $ uniform (-a) a
-randomMomentum (Energy a) = liftM Energy $ uniform (-a) a
+instance Functor Momentum where
+    fmap f (Speed a) = Speed (f a)
+    fmap f (Energy a) = Energy (f a)
+    fmap f (Momentum a) = Momentum (f a)
+    fmap f (Wavelength a) = Wavelength (f a)
+instance Applicative Momentum where
+    pure = Speed
+    (<*>) (Speed f) (Speed a) = Speed (f a)
+    (<*>) (Energy f) (Energy a) = Energy (f a)
+    (<*>) (Momentum f) (Momentum a) = Momentum (f a)
+    (<*>) (Wavelength f) (Wavelength a) = Wavelength (f a)
+    
+uniformSpread :: (Distribution Uniform a, Num a) => a -> RVar a
+uniformSpread a = uniform (-a) a
+
+randomMomentum :: (Distribution Uniform a, Num a) => Momentum a -> Momentum (RVar a)
+randomMomentum = fmap uniformSpread
 
 neutronMass :: Floating a => a
 neutronMass = 1.67492735174e-27
