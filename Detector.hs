@@ -1,12 +1,13 @@
 module Detector (detector,dumpToFile,dumpToConsole,pipeOver,
-                         xcoord,binner,histPipe) where
+                         xcoord,binner,histPipe,pushEvery) where
 
 import Pipes
 import Pipes.Lift
+import qualified Pipes.Prelude as P
 import Neutron
 import Vec
 
-import Control.Monad(forever)
+import Control.Monad(forever,replicateM_)
 import Control.Monad.Trans.State.Strict
 
 import System.IO
@@ -91,3 +92,10 @@ histPipe f bins range = pipeOver zeroList updater
     where
       zeroList = replicate bins 0
       updater = updateBins (toBin bins range) . f
+
+pushEvery :: (Monad m) => Int -> Pipe a a m r
+pushEvery n = forever $ do
+                replicateM_ n await
+                temp <- await
+                yield temp
+
