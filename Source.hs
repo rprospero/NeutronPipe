@@ -6,10 +6,10 @@ import Pipes
 import Neutron
 import Vec
 import Data.Random
-import Control.Applicative (pure,(<*>))
 
 data Area a = Circle a | Rect a a
 
+inArea :: (MonadRandom m, Floating a, Distribution Uniform a) => Area a -> a -> m (Vec a)
 inArea (Circle r) d = do
   rho <- sample $ uniform 0 r
   phi <- sample $ uniform 0 (2*pi)

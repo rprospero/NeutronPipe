@@ -10,7 +10,7 @@ Portability : POSIX
 This module performs a monte-carlo simulation of a neutron beamline.-}
 module Main (main) where
 
-import Neutron (Momentum(Energy,Speed,Wavelength,Momentum),getEnergy)
+import Neutron (Momentum(Speed,Energy,Momentum,Wavelength),getEnergy)
 import Momentum (rawMomentumValue)
 import Vec (Vec(Vec))
 import Pipes
@@ -19,7 +19,7 @@ import qualified Pipes.Prelude as P
 import Slits (slit)
 import Detector (dumpToConsole,histPipe)
 import Source (simpleSource,Area(Rect,Circle))
-import Data.Random (uniform,RVar,normal)
+import Data.Random (RVar,normal)
 import Control.Monad (liftM)
 
 startbox :: Area Double
@@ -34,6 +34,7 @@ mSpread :: Momentum Double -> Momentum Double -> RVar (Momentum Double)
 mSpread (Speed center) (Speed spread) = liftM Speed $ uniformSpread center spread
 mSpread (Energy center) (Energy spread) = liftM Energy $ uniformSpread center spread
 mSpread (Momentum center) (Momentum spread) = liftM Momentum $ uniformSpread center spread
+mSpread (Wavelength center) (Wavelength spread) = liftM Wavelength $ uniformSpread center spread
 
 mySpread :: RVar (Momentum Double)
 mySpread = mSpread (Energy 1.0) (Energy 0.1)
