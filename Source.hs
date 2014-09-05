@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 module Source (simpleSource,Area(Circle,Rect)) where
 
 import Control.Monad (forever)
@@ -5,6 +6,7 @@ import Pipes
 import Neutron
 import Vec
 import Data.Random
+import Control.Applicative (pure,(<*>))
 
 data Area a = Circle a | Rect a a
 
@@ -19,10 +21,11 @@ inArea (Rect h w) d = do
   y0 <- sample $ uniform (-h/2) (h/2)
   return (Vec x0 y0 d)
 
-simpleSource startArea targetArea distance speed dspeed= forever $
+simpleSource :: (Num a, Distribution Uniform a, Floating a) => Area a -> Area a -> a -> RVar (Momentum a) -> Producer (Neutron a) IO ()
+simpleSource startArea targetArea distance momentumSpread = forever $
              do
                start <- lift $ inArea startArea 0
                target <- lift $ inArea targetArea distance
-               spread <- lift . sample . randomMomentum $ dspeed
+               spread <- lift . sample $ momentumSpread
                let neutron = Neutron start 1 (target-start)
-               yield $ setSpeed (speed+spread) neutron
+               yield $ setSpeed spread neutron
