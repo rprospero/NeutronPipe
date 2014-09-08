@@ -10,6 +10,8 @@ import Vec
 import Control.Monad(forever,replicateM_)
 import Control.Monad.Trans.State.Strict
 
+import qualified Data.Vector as V
+
 import System.IO
 
 detector :: (Num a, Show a) => Consumer (Neutron a) IO ()
@@ -78,20 +80,16 @@ toBin steps (low,high) n = let temp = fromIntegral steps * (n-low)/(high-low)
                                 then steps-1
                                 else round temp
 
-updateList :: Int -> a -> [a] -> [a]
-updateList index n xs = take (index-1) xs ++ (n : drop index xs)
-
-updateBins' :: Int -> [Int] -> [Int]
-updateBins' n xs = updateList (n+1) (1 + xs !! n) xs
-
-updateBins :: (Double->Int) -> Double -> [Int] -> [Int]
-updateBins f n = updateBins' (f n)
-
-histPipe :: Monad m => (a -> Double) -> Int -> (Double,Double) -> Pipe a [Int] m r
+histPipe :: Monad m => (a -> Double) -> Int -> (Double,Double) -> Pipe a (V.Vector Int) m r
 histPipe f bins range = pipeOver zeroList updater
     where
-      zeroList = replicate bins 0
-      updater = updateBins (toBin bins range) . f
+      zeroList = V.replicate bins 0
+      updater = updateVector (toBin bins range) . f
+
+updateVector :: (Double->Int) -> Double -> V.Vector Int -> V.Vector Int
+updateVector f x v = v V.// [(idx, 1+(v V.! idx))]
+    where
+      idx = f x
 
 pushEvery :: (Monad m) => Int -> Pipe a a m r
 pushEvery n = pushEvery' n n
