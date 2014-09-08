@@ -94,8 +94,8 @@ histPipe f bins range = pipeOver zeroList updater
       updater = updateBins (toBin bins range) . f
 
 pushEvery :: (Monad m) => Int -> Pipe a a m r
-pushEvery n = forever $ do
-                replicateM_ n await
-                temp <- await
-                yield temp
+pushEvery n = pushEvery' n n
 
+pushEvery' :: (Monad m) => Int -> Int -> Pipe a a m r
+pushEvery' n 0 = await >>= yield >> pushEvery' n n
+pushEvery' n m = await >> pushEvery' n (m-1)
