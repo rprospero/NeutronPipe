@@ -17,6 +17,7 @@ import Control.Monad (forever)
 import Vec
 import Neutron
 import Pipes
+import qualified Pipes.Prelude as P
 
 vecComp :: Ord a => Vec a -> Vec a -> Bool
 -- | Determines whether all of the components of vector a are less
@@ -30,11 +31,7 @@ neutronComp a b n = let p = position n
 
 filterPipe :: Monad m => (a->Bool) -> Pipe a a m b                      
 -- | A pipe that takes a function f and only passes values that return true for f
-filterPipe f = forever $ do
-                 n <- await
-                 if f n
-                 then yield n
-                 else discard n
+filterPipe = P.filter
 
 slit :: (Ord a , Monad m) => Vec a -> Vec a -> Pipe (Neutron a) (Neutron a) m b
 -- | A pipe that only accepts neutrons with positions between the two parameters
