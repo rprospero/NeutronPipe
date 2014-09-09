@@ -46,19 +46,11 @@ binner' bins = forever $
 binner :: Monad m => Int -> Pipe t [t] m r
 binner bins = evalStateP [] $ binner' bins
 
-pipeOver' :: Monad m => (a -> b -> b) -> Pipe a b (StateT b m )r
-pipeOver' f =  forever $
-         do
-           next <- await
-           current <- lift get
-           let result = f next current
-           lift $ put result
-           yield result
-
-
 pipeOver :: Monad m => b -> (a -> b -> b) -> 
             Pipe a b m r
-pipeOver initial = evalStateP initial . pipeOver'
+--pipeOver initial = evalStateP initial . pipeOver'
+pipeOver initial f = P.scan (flip f) initial id
+
 
 xcoord :: Pipe (Neutron a) a IO ()
 xcoord = forever $ do
