@@ -20,9 +20,10 @@ import Slits (slit)
 import Detector (dumpToConsole,histPipe,pushEvery)
 import Source (simpleSource,Area(Rect,Circle))
 import Control.Monad (liftM)
+import Data.Random    
 
 startbox :: Area Double
-startbox = Rect 1 1
+startbox = Rect 0 1 0 1
 targetbox :: Area Double
 targetbox = Circle 1
 

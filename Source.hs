@@ -7,7 +7,7 @@ import Neutron
 import Vec
 import Data.Random
 
-data Area a = Circle a | Rect a a
+data Area a = Circle a | Rect a a a a
 
 inArea :: (MonadRandom m, Floating a, Distribution Uniform a) => Area a -> a -> m (Vec a)
 inArea (Circle r) d = do
@@ -16,9 +16,9 @@ inArea (Circle r) d = do
   let x0 = rho * cos phi
   let y0 = rho * sin phi
   return (Vec x0 y0 d)
-inArea (Rect h w) d = do
-  x0 <- sample $ uniform (-w/2) (w/2)
-  y0 <- sample $ uniform (-h/2) (h/2)
+inArea (Rect bottom top left right) d = do
+  y0 <- sample $ uniform bottom top
+  x0 <- sample $ uniform left right
   return (Vec x0 y0 d)
 
 simpleSource :: (Num a, Distribution Uniform a, Floating a) => Area a -> Area a -> a -> RVar (Momentum a) -> Producer (Neutron a) IO ()
