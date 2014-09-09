@@ -43,7 +43,7 @@ main :: IO ()
 -- | Simulate the beamline
 main = runEffect $ simpleSource startbox targetbox 1 mySpread >-> 
        slit (Vec 0 0 (-10)) (Vec 0.4 0.9 10) >->
-       P.take 10000 >-> 
+       P.take 1000000 >-> 
        histPipe (rawMomentumValue.getEnergy) 40 (0,2) >-> 
-       pushEvery 2000 >->
+       pushEvery 500000 >->
        dumpToConsole
