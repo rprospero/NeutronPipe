@@ -19,7 +19,6 @@ import qualified Pipes.Prelude as P
 import Slits (slit)
 import Detector (dumpToConsole,histPipe,pushEvery)
 import Source (simpleSource,Area(Rect,Circle))
-import Data.Random (RVar,normal,uniform)
 import Control.Monad (liftM)
 
 startbox :: Area Double
