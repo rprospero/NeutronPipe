@@ -19,8 +19,9 @@ import qualified Pipes.Prelude as P
 import Slits (slit)
 import Detector (dumpToConsole,histPipe,pushEvery)
 import Source (simpleSource,Area(Rect,Circle))
-import Control.Monad (liftM)
+import Control.Applicative
 import Data.Random    
+import Data.Traversable
 
 startbox :: Area Double
 startbox = Rect 0 1 0 1
@@ -30,11 +31,11 @@ targetbox = Circle 1
 uniformSpread :: Double -> Double -> RVar Double
 uniformSpread a b = uniform (a-b) (a+b)
 
+pair :: a -> b -> (a,b)
+pair a b = (a,b)
+
 mSpread :: (Double -> Double -> RVar Double) -> Momentum Double -> Momentum Double -> RVar (Momentum Double)
-mSpread f (Speed center) (Speed spread) = liftM Speed $ f center spread
-mSpread f (Energy center) (Energy spread) = liftM Energy $ f center spread
-mSpread f (Momentum center) (Momentum spread) = liftM Momentum $ f center spread
-mSpread f (Wavelength center) (Wavelength spread) = liftM Wavelength $ f center spread
+mSpread f center spread = traverse (uncurry f) $ fmap pair center <*> spread
 
 mySpread :: RVar (Momentum Double)
 mySpread = mSpread normal (Energy 1.0) (Energy 0.1)
