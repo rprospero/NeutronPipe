@@ -7,6 +7,8 @@ module Momentum (Momentum(Momentum,Energy,Speed,Wavelength),
 
 import Control.Applicative
 import Data.Random
+import Data.Traversable
+import Data.Foldable
 
 data Momentum a = Speed a | Energy a | Wavelength a | Momentum a
                 deriving (Eq,Ord,Show)
@@ -22,7 +24,18 @@ instance Applicative Momentum where
     (<*>) (Energy f) (Energy a) = Energy (f a)
     (<*>) (Momentum f) (Momentum a) = Momentum (f a)
     (<*>) (Wavelength f) (Wavelength a) = Wavelength (f a)
-    
+instance Foldable Momentum where
+    foldr f initial (Speed a) = f a initial
+    foldr f initial (Energy a) = f a initial
+    foldr f initial (Momentum a) = f a initial
+    foldr f initial (Wavelength a) = f a initial
+instance Traversable Momentum where
+    traverse f value = case value of
+                         Speed n -> liftA Speed $ f n
+                         Energy n -> liftA Energy $ f n
+                         Momentum n -> liftA Momentum $ f n
+                         Wavelength n -> liftA Wavelength $ f n
+
 uniformSpread :: (Distribution Uniform a, Num a) => a -> RVar a
 uniformSpread a = uniform (-a) a
 
