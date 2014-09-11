@@ -64,6 +64,7 @@ executable NeutronPipe
                        transformers,
                        random-fu,
                        QuickCheck,
+                       linear,
                        random
   
   -- Directories containing source files.

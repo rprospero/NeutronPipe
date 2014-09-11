@@ -12,7 +12,7 @@ module Main (main) where
 
 import Neutron (Momentum(Speed,Energy,Momentum,Wavelength),getEnergy)
 import Momentum (rawMomentumValue)
-import Vec (Vec(Vec))
+import Linear
 import Pipes
 import qualified Pipes.Prelude as P
 
@@ -43,7 +43,7 @@ mySpread = mSpread normal (Energy 1.0) (Energy 0.1)
 main :: IO ()
 -- | Simulate the beamline
 main = runEffect $ simpleSource startbox targetbox 1 mySpread >-> 
-       slit (Vec 0 0 (-10)) (Vec 0.4 0.9 10) >->
+       slit (V3 0 0 (-10)) (V3 0.4 0.9 10) >->
        P.take 1000000 >-> 
        histPipe (rawMomentumValue.getEnergy) 40 (0,2) >-> 
        pushEvery 500000 >->

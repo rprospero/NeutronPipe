@@ -5,7 +5,7 @@ import Pipes
 import Pipes.Lift
 import qualified Pipes.Prelude as P
 import Neutron
-import Vec
+import Linear
 
 import Control.Monad(forever,replicateM_)
 import Control.Monad.Trans.State.Strict
@@ -51,6 +51,7 @@ pipeOver :: Monad m => b -> (a -> b -> b) ->
 --pipeOver initial = evalStateP initial . pipeOver'
 pipeOver initial f = P.scan (flip f) initial id
 
+x (V3 a _ _) = a
 
 xcoord :: Pipe (Neutron a) a IO ()
 xcoord = forever $ do
