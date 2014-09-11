@@ -22,13 +22,7 @@ data Vec a = Vec {x :: a, -- ^ x coordinate
                   y :: a, -- ^ y coordinate
                   z :: a  -- ^ z coordinate
                  }
-
-instance Eq a => Eq (Vec a) where
-    (==) i j = x i == x j && y i == y j && z i == z j
-
-instance Show a => Show (Vec a) where
-    -- | Standard showing with "Vec" followed by the individual components
-    show v = ("Vec " ++) . unwords . map show $ [x v, y v, z v]
+             deriving (Eq, Show)
 
 instance Num a => Num (Vec a) where
     -- | Vector Elements are added componentwise
