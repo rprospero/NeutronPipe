@@ -1,11 +1,12 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module Momentum (Momentum(Momentum,Energy,Speed,Wavelength),
-                rawMomentumValue, randomMomentum, getSpeed',
+                randomMomentum, getSpeed',
                 getEnergy', getMomentum', getWavelength',
                 toSpeed') where
 
 import Control.Applicative
+import Control.Comonad
 import Data.Random
 import Data.Traversable
 import Data.Foldable
@@ -62,9 +63,12 @@ getEnergy' = Energy . (/ 2) . (* neutronMass) . (\s -> s*s)
 getWavelength' :: Floating a => a -> Momentum a
 getWavelength' = Wavelength . (planck /) . (* neutronMass)
 
-
-rawMomentumValue :: Momentum a -> a
-rawMomentumValue (Speed a) = a
-rawMomentumValue (Energy a) = a
-rawMomentumValue (Momentum a) = a
-rawMomentumValue (Wavelength a) = a
+instance Comonad Momentum where
+    extract (Speed a) = a
+    extract (Momentum a) = a
+    extract (Energy a) = a
+    extract (Wavelength a) = a
+    duplicate (Speed a) = Speed (Speed a)
+    duplicate (Energy a) = Energy (Energy a)
+    duplicate (Momentum a) = Momentum (Momentum a)
+    duplicate (Wavelength a) = Wavelength (Wavelength a)

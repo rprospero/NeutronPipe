@@ -11,7 +11,6 @@ This module performs a monte-carlo simulation of a neutron beamline.-}
 module Main (main) where
 
 import Neutron (Momentum(Speed,Energy,Momentum,Wavelength),getEnergy)
-import Momentum (rawMomentumValue)
 import Linear
 import Pipes
 import qualified Pipes.Prelude as P
@@ -22,6 +21,7 @@ import Source (simpleSource,Area(Rect,Circle))
 import Control.Applicative
 import Data.Random    
 import Data.Traversable
+import Control.Comonad(extract)
 
 startbox :: Area Double
 startbox = Rect 0 1 0 1
@@ -45,6 +45,6 @@ main :: IO ()
 main = runEffect $ simpleSource startbox targetbox 1 mySpread >-> 
        slit (V3 0 0 (-10)) (V3 0.4 0.9 10) >->
        P.take 1000000 >-> 
-       histPipe (rawMomentumValue.getEnergy) 40 (0,2) >-> 
+       histPipe (extract.getEnergy) 40 (0,2) >-> 
        pushEvery 500000 >->
        dumpToConsole
