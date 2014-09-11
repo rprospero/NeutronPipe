@@ -14,6 +14,9 @@ better module written by a more competent programmer.  -}
 
 module Vec (Vec(Vec,x,y,z),dot,cross,scale,norm,rescale) where
 
+import Test.QuickCheck.Arbitrary
+import Control.Applicative ((<*>),(<$>))
+
 -- | A data type for 3-vectors
 data Vec a = Vec {x :: a, -- ^ x coordinate
                   y :: a, -- ^ y coordinate
@@ -40,6 +43,10 @@ instance Num a => Num (Vec a) where
     fromInteger i = Vec (fromInteger i) (fromInteger i) (fromInteger i)
     -- | The signum of the individual componenets.  I really have no idea how this would ever be useful.
     signum i = Vec (signum (x i)) (signum (y i)) (signum (z i))
+
+instance Arbitrary a => Arbitrary (Vec a) where
+    arbitrary = Vec <$> arbitrary <*> arbitrary <*> arbitrary
+
 
 -- | Returns the inner product of two vectors.  It might make sense to make an operator for this, but the obvious one is taken.
 dot :: Num a => Vec a -> Vec a -> a

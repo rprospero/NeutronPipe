@@ -63,6 +63,7 @@ executable NeutronPipe
                        vector,
                        transformers,
                        random-fu,
+                       QuickCheck,
                        random
   
   -- Directories containing source files.
@@ -84,6 +85,7 @@ Test-suite tests
                        random-fu,
                        tasty,
                        tasty-quickcheck,
+                       QuickCheck,
                        random
 
   Ghc-options:       -Wall -fno-warn-orphans

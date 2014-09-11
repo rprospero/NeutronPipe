@@ -2,23 +2,15 @@ import Test.Tasty
 import Test.Tasty.QuickCheck
 import Vec
 
-testDouble :: Int -> Int -> Int -> Bool
-testDouble a b c = xs + xs == scale 2 xs
-    where
-      xs = Vec a b c
+testDouble :: Vec Int -> Bool
+testDouble xs = xs + xs == scale 2 xs
 
 testTriple
-  :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Bool
-testTriple ax ay az bx by bz cx cy cz  = a * (b * c) == scale (a `dot` c) b - scale (a `dot` b) c
-    where
-      a = Vec ax ay az
-      b = Vec bx by bz
-      c = Vec cx cy cz
+  :: Vec Int -> Vec Int -> Vec Int -> Bool
+testTriple a b c  = a * (b * c) == scale (a `dot` c) b - scale (a `dot` b) c
 
-crossTest :: Int -> Int -> Int -> Bool
-crossTest a b c = x * x == 0
-    where
-      x = Vec a b c
+crossTest :: Vec Int -> Bool
+crossTest x = x * x == 0
 
 tests = testGroup "Tests" [testProperty "Cross" $ crossTest,
                           testProperty "Triple" $ testTriple,
