@@ -75,6 +75,8 @@ uniformSpread :: (Distribution Uniform a, Num a) => a -> RVar a
 uniformSpread a = uniform (-a) a
 
 neutronMass :: Floating a => a
+{-# INLINE neutronMass #-}
 neutronMass = 1.67492735174e-27
 planck :: Floating a => a
+{-# INLINE planck #-}
 planck = 6.62606957e-34
