@@ -32,14 +32,8 @@ targetbox = Circle 1
 uniformSpread :: Double -> Double -> RVar Double
 uniformSpread a b = uniform (a-b) (a+b)
 
-pair :: a -> b -> (a,b)
-pair a b = (a,b)
-
-mSpread :: (Applicative m,Traversable m,Momentum m) => (Double -> Double -> RVar Double) -> m Double -> m Double -> RVar (m Double)
-mSpread f center spread = traverse (uncurry f) $ fmap pair center <*> spread
-
-mySpread :: RVar (Energy Double)
-mySpread = mSpread normal (Energy 1.0) (Energy 0.1)
+mySpread :: Energy (RVar Double) 
+mySpread = normal <$> Energy 1.0 <*> Energy 0.1
 
 main :: IO ()
 -- | Simulate the beamline
