@@ -6,6 +6,7 @@ import Pipes
 import Neutron
 import Linear
 import Data.Random
+import Momentum (toSpeed')
 
 data Area a = Circle a | Rect a a a a
 
@@ -24,8 +25,7 @@ inArea (Rect bottom top left right) d = do
 simpleSource :: (Epsilon a, Num a, Distribution Uniform a, Floating a) => Area a -> Area a -> a -> RVar (Momentum a) -> Producer (Neutron a) IO ()
 simpleSource startArea targetArea distance momentumSpread = forever $
              do
+               spread <- lift . sample $ momentumSpread
                start <- lift $ inArea startArea 0
                target <- lift $ inArea targetArea distance
-               spread <- lift . sample $ momentumSpread
-               let neutron = Neutron start 1 (target-start)
-               yield $ setSpeed spread neutron
+               yield . Neutron start 1 . (toSpeed' spread *^). normalize $ (target-start)
