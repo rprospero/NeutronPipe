@@ -10,7 +10,8 @@ Portability : POSIX
 This module performs a monte-carlo simulation of a neutron beamline.-}
 module Main (main) where
 
-import Neutron (Momentum(Speed,Energy,Momentum,Wavelength),getEnergy)
+import Neutron (getEnergy)
+import Momentum (Energy(Energy),Momentum)
 import Linear
 import Pipes
 import qualified Pipes.Prelude as P
@@ -34,10 +35,10 @@ uniformSpread a b = uniform (a-b) (a+b)
 pair :: a -> b -> (a,b)
 pair a b = (a,b)
 
-mSpread :: (Double -> Double -> RVar Double) -> Momentum Double -> Momentum Double -> RVar (Momentum Double)
+mSpread :: (Applicative m,Traversable m,Momentum m) => (Double -> Double -> RVar Double) -> m Double -> m Double -> RVar (m Double)
 mSpread f center spread = traverse (uncurry f) $ fmap pair center <*> spread
 
-mySpread :: RVar (Momentum Double)
+mySpread :: RVar (Energy Double)
 mySpread = mSpread normal (Energy 1.0) (Energy 0.1)
 
 main :: IO ()

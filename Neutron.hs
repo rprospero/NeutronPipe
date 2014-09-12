@@ -10,10 +10,10 @@ Portability : POSIX
 This module allows for simulating a neutron trajectory in a classical way.
 
 -}
-module Neutron (Neutron(Neutron),advance,position,velocity,intensity,setSpeed,Momentum(Momentum,Wavelength,Energy,Speed),getSpeed,getMomentum,getEnergy,getWavelength) where
+module Neutron (Neutron(Neutron),advance,position,velocity,intensity,setSpeed,getSpeed,getEnergy,getWavelength) where
 
 import Linear
-import Momentum
+import qualified Momentum as M
 
 -- | Holds the data for a simulate neutron trajectory
 data Neutron a = Neutron {position :: V3 a, -- ^ The location of the neutron
@@ -30,16 +30,13 @@ advance :: Num a => a -> Neutron a -> Neutron a
 advance t n = n {position = position n + t *^ (velocity n)}
 
 
-getSpeed :: Floating a => Neutron a -> Momentum a
-getSpeed = getSpeed' . norm . velocity
-getMomentum :: Floating a => Neutron a -> Momentum a
-getMomentum = getMomentum' .  norm . velocity
-getEnergy :: Floating a => Neutron a -> Momentum a
-getEnergy = getEnergy' . norm . velocity
-getWavelength :: Floating a => Neutron a -> Momentum a
-getWavelength = getWavelength' . norm . velocity
+getSpeed :: Floating a => Neutron a -> M.Speed a
+getSpeed = M.fromSpeed . norm . velocity
+getEnergy :: Floating a => Neutron a -> M.Energy a
+getEnergy = M.fromSpeed . norm . velocity
+getWavelength :: Floating a => Neutron a -> M.Wavelength a
+getWavelength = M.fromSpeed . norm . velocity
 
-
-setSpeed :: (Floating a, Epsilon a) => Momentum a -> Neutron a -> Neutron a
-setSpeed s n = n {velocity = (toSpeed' s *^) . normalize $ velocity n}
+setSpeed :: (M.Momentum m, Floating a, Epsilon a) => m a -> Neutron a -> Neutron a
+setSpeed s n = n {velocity = (M.getSpeed s *^) . normalize $ velocity n}
 

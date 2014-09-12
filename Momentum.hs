@@ -1,9 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-module Momentum (Momentum(Momentum,Energy,Speed,Wavelength),
-                randomMomentum, getSpeed',
-                getEnergy', getMomentum', getWavelength',
-                toSpeed') where
+module Momentum (Speed(Speed),Energy(Energy),Wavelength(Wavelength),
+                 Momentum(getSpeed,fromSpeed)) where
 
 import Control.Applicative
 import Control.Comonad
@@ -11,64 +9,72 @@ import Data.Random
 import Data.Traversable
 import Data.Foldable
 
-data Momentum a = Speed a | Energy a | Wavelength a | Momentum a
-                deriving (Eq,Ord,Show)
+--data Momentum a = Speed a | Energy a | Wavelength a | Momentum a
+--                deriving (Eq,Ord,Show)
 
-instance Functor Momentum where
+class Momentum m where
+    getSpeed :: Floating a => m a -> a
+    fromSpeed :: Floating a => a -> m a
+
+data Speed a = Speed a deriving (Show,Eq,Ord)
+
+instance Functor Speed where
     fmap f (Speed a) = Speed (f a)
-    fmap f (Energy a) = Energy (f a)
-    fmap f (Momentum a) = Momentum (f a)
-    fmap f (Wavelength a) = Wavelength (f a)
-instance Applicative Momentum where
+instance Applicative Speed where
     pure = Speed
     (<*>) (Speed f) (Speed a) = Speed (f a)
-    (<*>) (Energy f) (Energy a) = Energy (f a)
-    (<*>) (Momentum f) (Momentum a) = Momentum (f a)
-    (<*>) (Wavelength f) (Wavelength a) = Wavelength (f a)
-instance Foldable Momentum where
+instance Foldable Speed where
     foldr f initial (Speed a) = f a initial
+instance Traversable Speed where
+    traverse f (Speed n) = liftA Speed $ f n
+instance Comonad Speed where
+    extract (Speed a) = a
+    duplicate (Speed a) = Speed (Speed a)
+instance Momentum Speed where
+    getSpeed = extract
+    fromSpeed = Speed
+
+data Energy a = Energy a
+
+
+instance Functor Energy where
+    fmap f (Energy a) = Energy (f a)
+instance Applicative Energy where
+    pure = Energy
+    (<*>) (Energy f) (Energy a) = Energy (f a)
+instance Foldable Energy where
     foldr f initial (Energy a) = f a initial
-    foldr f initial (Momentum a) = f a initial
+instance Traversable Energy where
+    traverse f (Energy n) = liftA Energy $ f n
+instance Comonad Energy where
+    extract (Energy a) = a
+    duplicate (Energy a) = Energy (Energy a)
+instance Momentum Energy where
+    getSpeed = (\e -> sqrt (2*e/neutronMass)) . extract
+    fromSpeed = Energy . (\s -> s*s*neutronMass/2)
+
+data Wavelength a = Wavelength a
+
+instance Functor Wavelength where
+    fmap f (Wavelength a) = Wavelength (f a)
+instance Applicative Wavelength where
+    pure = Wavelength
+    (<*>) (Wavelength f) (Wavelength a) = Wavelength (f a)
+instance Foldable Wavelength where
     foldr f initial (Wavelength a) = f a initial
-instance Traversable Momentum where
-    traverse f value = case value of
-                         Speed n -> liftA Speed $ f n
-                         Energy n -> liftA Energy $ f n
-                         Momentum n -> liftA Momentum $ f n
-                         Wavelength n -> liftA Wavelength $ f n
+instance Traversable Wavelength where
+    traverse f (Wavelength n) = liftA Wavelength $ f n
+instance Comonad Wavelength where
+    extract (Wavelength a) = a
+    duplicate (Wavelength a) = Wavelength (Wavelength a)
+instance Momentum Wavelength where
+    getSpeed = (\a -> planck / a / neutronMass) . extract
+    fromSpeed = Wavelength . (\s -> planck / s / neutronMass)
 
 uniformSpread :: (Distribution Uniform a, Num a) => a -> RVar a
 uniformSpread a = uniform (-a) a
 
-randomMomentum :: (Distribution Uniform a, Num a) => Momentum a -> Momentum (RVar a)
-randomMomentum = fmap uniformSpread
- 
 neutronMass :: Floating a => a
 neutronMass = 1.67492735174e-27
 planck :: Floating a => a
 planck = 6.62606957e-34
-
-toSpeed' :: Floating a => Momentum a -> a
-toSpeed' (Speed s) = s
-toSpeed' (Momentum m) = m/neutronMass
-toSpeed' (Energy e) = sqrt (2*e/neutronMass)
-toSpeed' (Wavelength l) = planck / l / neutronMass
-
-getSpeed' :: a -> Momentum a
-getSpeed' = Speed
-getMomentum' :: Floating a => a -> Momentum a
-getMomentum' = Momentum . (* neutronMass)
-getEnergy' :: Floating a => a -> Momentum a
-getEnergy' = Energy . (/ 2) . (* neutronMass) . (\s -> s*s)
-getWavelength' :: Floating a => a -> Momentum a
-getWavelength' = Wavelength . (planck /) . (* neutronMass)
-
-instance Comonad Momentum where
-    extract (Speed a) = a
-    extract (Momentum a) = a
-    extract (Energy a) = a
-    extract (Wavelength a) = a
-    duplicate (Speed a) = Speed (Speed a)
-    duplicate (Energy a) = Energy (Energy a)
-    duplicate (Momentum a) = Momentum (Momentum a)
-    duplicate (Wavelength a) = Wavelength (Wavelength a)

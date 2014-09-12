@@ -3,10 +3,10 @@ module Source (simpleSource,Area(Circle,Rect)) where
 
 import Control.Monad (forever)
 import Pipes
-import Neutron
-import Linear
+import Neutron (Neutron(Neutron))
+import Linear (normalize,V3(V3),Epsilon,(*^))
 import Data.Random
-import Momentum (toSpeed')
+import Momentum (Momentum(getSpeed))
 
 data Area a = Circle a | Rect a a a a
 
@@ -22,10 +22,10 @@ inArea (Rect bottom top left right) d = do
   x0 <- sample $ uniform left right
   return (V3 x0 y0 d)
 
-simpleSource :: (Epsilon a, Num a, Distribution Uniform a, Floating a) => Area a -> Area a -> a -> RVar (Momentum a) -> Producer (Neutron a) IO ()
+simpleSource :: (Epsilon a, Num a, Distribution Uniform a, Floating a, Momentum m) => Area a -> Area a -> a -> RVar (m a) -> Producer (Neutron a) IO ()
 simpleSource startArea targetArea distance momentumSpread = forever $
              do
                spread <- lift . sample $ momentumSpread
                start <- lift $ inArea startArea 0
                target <- lift $ inArea targetArea distance
-               yield . Neutron start 1 . (toSpeed' spread *^). normalize $ (target-start)
+               yield . Neutron start 1 . (getSpeed spread *^). normalize $ (target-start)
