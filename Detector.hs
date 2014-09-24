@@ -1,5 +1,5 @@
 module Detector (detector,dumpToFile,dumpToConsole,pipeOver,
-                         xcoord,binner,histPipe,pushEvery) where
+                         xcoord,binner,histPipe,pushEvery,histBuilder) where
 
 import Pipes
 import Pipes.Lift
@@ -7,10 +7,10 @@ import qualified Pipes.Prelude as P
 import Neutron
 import Linear
 
-import Control.Monad(forever,replicateM_)
+import Control.Monad(forever)
 import Control.Monad.Trans.State.Strict
 
-import qualified Data.Vector as V
+import qualified Data.Vector.Unboxed as V
 
 import System.IO
 
@@ -90,3 +90,21 @@ pushEvery n = pushEvery' n n
 pushEvery' :: (Monad m) => Int -> Int -> Pipe a a m r
 pushEvery' n 0 = await >>= yield >> pushEvery' n n
 pushEvery' n m = await >> pushEvery' n (m-1)
+
+histBuilder :: Monad m => (a -> Double) -> Int -> (Double,Double) -> Int -> Pipe a (V.Vector Int) m r
+histBuilder f bins range delay = histBuilder' updater delay delay zeroList
+    where
+      zeroList = V.replicate bins 0
+      updater = updateVector (toBin bins range) . f
+
+
+histBuilder' :: Monad m => (a -> V.Vector Int -> V.Vector Int) -> Int -> Int -> V.Vector Int -> Pipe a (V.Vector Int) m r
+histBuilder' f size 0 v = do
+  event <- await
+  let v2 = f event v
+  yield v2
+  histBuilder' f size size v2
+histBuilder' f size n v = do
+  event <- await
+  let v2 = f event v
+  histBuilder' f size (n-1) v2

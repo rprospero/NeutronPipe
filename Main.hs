@@ -17,7 +17,7 @@ import Pipes
 import qualified Pipes.Prelude as P
 
 import Slits (slit)
-import Detector (dumpToConsole,histPipe,pushEvery)
+import Detector (dumpToConsole,histBuilder,pushEvery,histPipe)
 import Source (simpleSource,Area(Rect,Circle))
 import Control.Applicative
 import Data.Random    
@@ -40,6 +40,8 @@ main :: IO ()
 main = runEffect $ simpleSource startbox targetbox 1 mySpread >-> 
        slit (V3 0 0 (-10)) (V3 0.4 0.9 10) >->
        P.take 100000 >->
-       histPipe (extract.getEnergy) 40 (0,2) >-> 
-       pushEvery 50000 >->
-       P.drain
+--       histPipe (extract.getEnergy) 40 (0,2) >-> 
+--       pushEvery 50000 >->
+       histBuilder (extract.getEnergy) 40 (0,2) 50000 >->
+       dumpToConsole
+--       P.drain
