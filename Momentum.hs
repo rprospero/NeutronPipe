@@ -16,7 +16,7 @@ class Momentum m where
     getSpeed :: Floating a => m a -> a
     fromSpeed :: Floating a => a -> m a
 
-data Speed a = Speed a deriving (Show,Eq,Ord)
+newtype Speed a = Speed a deriving (Show,Eq,Ord)
 
 instance Functor Speed where
     fmap f (Speed a) = Speed (f a)
@@ -34,7 +34,7 @@ instance Momentum Speed where
     getSpeed = extract
     fromSpeed = Speed
 
-data Energy a = Energy a
+newtype Energy a = Energy a
 
 
 instance Functor Energy where
@@ -53,7 +53,7 @@ instance Momentum Energy where
     getSpeed = (\e -> sqrt (2*e/neutronMass)) . extract
     fromSpeed = Energy . (\s -> s*s*neutronMass/2)
 
-data Wavelength a = Wavelength a
+newtype Wavelength a = Wavelength a
 
 instance Functor Wavelength where
     fmap f (Wavelength a) = Wavelength (f a)
