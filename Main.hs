@@ -23,6 +23,7 @@ import Control.Applicative
 import Data.Random    
 import Data.Traversable
 import Control.Comonad(extract)
+import Control.Monad (liftM)
 
 --startbox :: Area Double
 --startbox = Rect 0 1 0 1
@@ -43,11 +44,8 @@ targetbox = do
   let y0 = rho * sin phi
   return (x0,y0)
 
-uniformSpread :: Double -> Double -> RVar Double
-uniformSpread a b = uniform (a-b) (a+b)
-
-mySpread :: Energy (RVar Double) 
-mySpread = normal <$> Energy 1.0 <*> Energy 0.1
+mySpread :: RVar (Energy Double)
+mySpread = liftM Energy $ normal 1.0 0.1
 
 main :: IO ()
 -- | Simulate the beamline

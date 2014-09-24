@@ -25,11 +25,11 @@ inArea (Rect bottom top left right) d = do
 
 --samplePoint 
 
-{-# SPECIALIZE simpleSource :: RVar (Double, Double) -> RVar (Double, Double) -> Double -> Energy (RVar Double) -> Producer (Neutron Double) IO () #-}
-simpleSource :: (Epsilon a, Num a, Distribution Uniform a, Floating a, Momentum m, Traversable m) => RVar (a,a) -> RVar (a,a) -> a -> m (RVar a) -> Producer (Neutron a) IO ()
+{-# SPECIALIZE simpleSource :: RVar (Double, Double) -> RVar (Double, Double) -> Double -> RVar (Energy Double) -> Producer (Neutron Double) IO () #-}
+simpleSource :: (Epsilon a, Num a, Distribution Uniform a, Floating a, Momentum m) => RVar (a,a) -> RVar (a,a) -> a -> RVar (m a) -> Producer (Neutron a) IO ()
 simpleSource startArea targetArea distance momentumSpread = forever $
              do
-               spread <- lift . traverse sample $ momentumSpread
+               spread <- lift . sample $ momentumSpread
                (x1,y1) <- lift . sample $ startArea
                (x2,y2) <- lift . sample $ targetArea
                let start = V3 x1 y1 0
