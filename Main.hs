@@ -38,16 +38,17 @@ targetbox = do
   return $ V3 x0 y0 1
 
 mySpread :: RVar (Energy Double)
-mySpread = liftM Energy $ normal 1.0 0.1
+mySpread = liftM Energy $ normal 1.0 0.5
            
 --main' :: (RandomSource IO s) => s -> IO ()
 -- | Simulate the beamline
 main' src = runEffect $ simpleSource src startbox targetbox mySpread >-> 
             slit (V3 0 0 (-10)) (V3 0.4 0.9 10) >->
-            P.take 100000 >->
+            P.take 1000000 >->
             histBuilder (extract.getEnergy) 40 (0,2) 50000 >->
             dumpToConsole
 
+main :: IO ()
 main = do
   src <- newIORef (pureMT 1234)
   main' src
