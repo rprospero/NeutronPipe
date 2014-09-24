@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts, DeriveFunctor, DeriveFoldable, DeriveTraversable#-}
 
 module Momentum (Speed(Speed),Energy(Energy),Wavelength(Wavelength),
                  Momentum(getSpeed,fromSpeed)) where
@@ -16,17 +16,11 @@ class Momentum m where
     getSpeed :: Floating a => m a -> a
     fromSpeed :: Floating a => a -> m a
 
-newtype Speed a = Speed a deriving (Show,Eq,Ord)
+newtype Speed a = Speed a deriving (Show,Eq,Ord,Functor,Foldable,Traversable)
 
-instance Functor Speed where
-    fmap f (Speed a) = Speed (f a)
 instance Applicative Speed where
     pure = Speed
     (<*>) (Speed f) (Speed a) = Speed (f a)
-instance Foldable Speed where
-    foldr f initial (Speed a) = f a initial
-instance Traversable Speed where
-    traverse f (Speed n) = liftA Speed $ f n
 instance Comonad Speed where
     extract (Speed a) = a
     duplicate (Speed a) = Speed (Speed a)
@@ -34,18 +28,11 @@ instance Momentum Speed where
     getSpeed = extract
     fromSpeed = Speed
 
-newtype Energy a = Energy a
+newtype Energy a = Energy a deriving (Show,Eq,Ord,Functor,Foldable,Traversable)
 
-
-instance Functor Energy where
-    fmap f (Energy a) = Energy (f a)
 instance Applicative Energy where
     pure = Energy
     (<*>) (Energy f) (Energy a) = Energy (f a)
-instance Foldable Energy where
-    foldr f initial (Energy a) = f a initial
-instance Traversable Energy where
-    traverse f (Energy n) = liftA Energy $ f n
 instance Comonad Energy where
     extract (Energy a) = a
     duplicate (Energy a) = Energy (Energy a)
@@ -53,17 +40,11 @@ instance Momentum Energy where
     getSpeed = (\e -> sqrt (2*e/neutronMass)) . extract
     fromSpeed = Energy . (\s -> s*s*neutronMass/2)
 
-newtype Wavelength a = Wavelength a
+newtype Wavelength a = Wavelength a deriving (Show,Eq,Ord,Functor,Foldable,Traversable)
 
-instance Functor Wavelength where
-    fmap f (Wavelength a) = Wavelength (f a)
 instance Applicative Wavelength where
     pure = Wavelength
     (<*>) (Wavelength f) (Wavelength a) = Wavelength (f a)
-instance Foldable Wavelength where
-    foldr f initial (Wavelength a) = f a initial
-instance Traversable Wavelength where
-    traverse f (Wavelength n) = liftA Wavelength $ f n
 instance Comonad Wavelength where
     extract (Wavelength a) = a
     duplicate (Wavelength a) = Wavelength (Wavelength a)
