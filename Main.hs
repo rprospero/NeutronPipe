@@ -11,7 +11,7 @@ This module performs a monte-carlo simulation of a neutron beamline.-}
 module Main (main) where
 
 import Neutron (getEnergy)
-import Momentum (Energy(Energy),Momentum)
+import Momentum (Energy(Energy))
 import Pipes
 import qualified Pipes.Prelude as P
 
