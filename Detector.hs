@@ -97,14 +97,13 @@ histBuilder f bins range delay = histBuilder' updater delay delay zeroList
       zeroList = V.replicate bins 0
       updater = updateVector (toBin bins range) . f
 
-
 histBuilder' :: Monad m => (a -> V.Vector Int -> V.Vector Int) -> Int -> Int -> V.Vector Int -> Pipe a (V.Vector Int) m r
 histBuilder' f size 0 v = do
   event <- await
   let v2 = f event v
   yield v2
-  histBuilder' f size size v2
+  seq v2 $ histBuilder' f size size v2
 histBuilder' f size n v = do
   event <- await
   let v2 = f event v
-  histBuilder' f size (n-1) v2
+  seq v2 $ histBuilder' f size (n-1) v2
