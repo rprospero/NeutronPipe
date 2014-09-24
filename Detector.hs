@@ -1,5 +1,6 @@
 module Detector (detector,dumpToFile,dumpToConsole,pipeOver,
-                         xcoord,binner,histPipe,pushEvery,histBuilder) where
+                 xcoord,binner,histPipe,pushEvery,
+                 histBuilder,histBuilder2) where
 
 import Pipes
 import Pipes.Lift
@@ -11,6 +12,7 @@ import Control.Monad(forever)
 import Control.Monad.Trans.State.Strict
 
 import qualified Data.Vector.Unboxed as V
+import Data.Foldable (foldr')
 
 import System.IO
 
@@ -111,3 +113,20 @@ histBuilder' f size n v = do
   event <- await
   let v2 = f event v
   seq v2 $ histBuilder' f size (n-1) v2
+
+histBuilder2 :: (Monad m, Foldable n) => (Neutron (n a) -> n a) -> (a -> Double) -> Int -> (Double,Double) -> Int -> Pipe (Neutron (n a)) (V.Vector Int) m r
+histBuilder2 f2 f bins range delay = histBuilder2' f2 updater delay delay zeroList
+    where
+      zeroList = V.replicate bins 0
+      updater = updateVector bins (toBin bins range) . f
+ 
+histBuilder2' :: (Monad m, Foldable n) => (Neutron (n a) -> n a) -> (a -> V.Vector Int -> V.Vector Int) -> Int -> Int -> V.Vector Int -> Pipe (Neutron (n a)) (V.Vector Int) m r
+histBuilder2' f2 f size 0 v = do
+  event <- await
+  let v2 = foldr' f v $ f2 event
+  yield v2
+  seq v2 $ histBuilder2' f2 f size size v2
+histBuilder2' f2 f size n v = do
+  event <- await
+  let v2 = foldr' f v $ f2 event
+  seq v2 $ histBuilder2' f2 f size (n-1) v2
