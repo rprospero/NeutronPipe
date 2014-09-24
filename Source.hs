@@ -23,13 +23,15 @@ inArea (Rect bottom top left right) d = do
   x0 <- sample $ uniform left right
   return (V3 x0 y0 d)
 
-{-# SPECIALIZE simpleSource :: Area Double -> Area Double -> Double -> Energy (RVar Double) -> Producer (Neutron Double) IO () #-}
-{-# SPECIALIZE simpleSource :: Area Double -> Area Double -> Double -> Speed (RVar Double) -> Producer (Neutron Double) IO () #-}
-{-# SPECIALIZE simpleSource :: Area Double -> Area Double -> Double -> Wavelength (RVar Double) -> Producer (Neutron Double) IO () #-}
-simpleSource :: (Epsilon a, Num a, Distribution Uniform a, Floating a, Momentum m, Traversable m) => Area a -> Area a -> a -> m (RVar a) -> Producer (Neutron a) IO ()
+--samplePoint 
+
+{-# SPECIALIZE simpleSource :: RVar (Double, Double) -> RVar (Double, Double) -> Double -> Energy (RVar Double) -> Producer (Neutron Double) IO () #-}
+simpleSource :: (Epsilon a, Num a, Distribution Uniform a, Floating a, Momentum m, Traversable m) => RVar (a,a) -> RVar (a,a) -> a -> m (RVar a) -> Producer (Neutron a) IO ()
 simpleSource startArea targetArea distance momentumSpread = forever $
              do
                spread <- lift . traverse sample $ momentumSpread
-               start <- lift $ inArea startArea 0
-               target <- lift $ inArea targetArea distance
+               (x1,y1) <- lift . sample $ startArea
+               (x2,y2) <- lift . sample $ targetArea
+               let start = V3 x1 y1 0
+               let target = V3 x2 y2 distance
                yield . Neutron start 1 . (getSpeed spread *^). normalize $ (target-start)

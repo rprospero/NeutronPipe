@@ -24,10 +24,24 @@ import Data.Random
 import Data.Traversable
 import Control.Comonad(extract)
 
-startbox :: Area Double
-startbox = Rect 0 1 0 1
-targetbox :: Area Double
-targetbox = Circle 1
+--startbox :: Area Double
+--startbox = Rect 0 1 0 1
+--targetbox :: Area Double
+--targetbox = Circle 1
+
+startbox :: RVar (Double, Double)
+startbox = do
+  x <- uniform 0 1
+  y <- uniform 0 1
+  return (x,y)
+
+targetbox :: RVar (Double, Double)
+targetbox = do
+  rho <- uniform 0 1
+  phi <- uniform 0 (2*pi)
+  let x0 = rho * cos phi
+  let y0 = rho * sin phi
+  return (x0,y0)
 
 uniformSpread :: Double -> Double -> RVar Double
 uniformSpread a b = uniform (a-b) (a+b)
