@@ -77,12 +77,16 @@ histPipe :: Monad m => (a -> Double) -> Int -> (Double,Double) -> Pipe a (V.Vect
 histPipe f bins range = pipeOver zeroList updater
     where
       zeroList = V.replicate bins 0
-      updater = updateVector (toBin bins range) . f
+      updater = updateVector bins (toBin bins range) . f
 
-updateVector :: (Double->Int) -> Double -> V.Vector Int -> V.Vector Int
-updateVector f x v = v V.// [(idx, 1+(v V.! idx))]
+updateVector :: Int -> (Double->Int) -> Double -> V.Vector Int -> V.Vector Int
+updateVector bins f n v = v V.// [(idx, 1+(v V.! idx))]
     where
-      idx = f x
+      idx
+          | ix < 0 = 0
+          | ix > bins = bins - 1
+          | otherwise = ix
+      ix = f n
 
 pushEvery :: (Monad m) => Int -> Pipe a a m r
 pushEvery n = pushEvery' n n
@@ -95,7 +99,7 @@ histBuilder :: Monad m => (a -> Double) -> Int -> (Double,Double) -> Int -> Pipe
 histBuilder f bins range delay = histBuilder' updater delay delay zeroList
     where
       zeroList = V.replicate bins 0
-      updater = updateVector (toBin bins range) . f
+      updater = updateVector bins (toBin bins range) . f
 
 histBuilder' :: Monad m => (a -> V.Vector Int -> V.Vector Int) -> Int -> Int -> V.Vector Int -> Pipe a (V.Vector Int) m r
 histBuilder' f size 0 v = do
