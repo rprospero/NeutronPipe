@@ -12,7 +12,7 @@ This module performs a monte-carlo simulation of a neutron beamline.-}
 module Main (main) where
 
 import Neutron (getEnergy,Neutron)
-import Momentum (Energy(Energy))
+import Momentum (Energy(Energy),Momentum)
 import Pipes
 import qualified Pipes.Prelude as P
 
@@ -44,19 +44,25 @@ mySpread = liftM Energy $ normal 1.0 0.5
 main' :: (RandomSource IO s) => s -> IO ()
 -- | Simulate the beamline
 main' src = runEffect $ producer src >->
-            slit (V3 0 0 (-10)) (V3 0.4 0.9 10) >->
             P.take 1000000 >->
             histBuilder (extract.getEnergy) 40 (0,2) 50000 >->
             dumpToConsole
 
-testSource :: (RandomSource IO s) => s -> IO (Neutron Double)
-testSource = runRVar (simpleSource <$> startbox <*> targetbox <*> mySpread)
+startSlit :: Neutron Double -> Maybe (Neutron Double)
+startSlit = slit (V3 0 0 (-10)) (V3 0.4 0.9 10)
+
+beamline :: (Momentum m) => V3 Double -> V3 Double -> m Double -> Maybe (Neutron Double)
+beamline start target momentum = startSlit $ simpleSource start target momentum
 
 
 producer :: (RandomSource IO s) => s -> Producer (Neutron Double) IO ()
 producer src = forever $ do
-  neutron <- lift $ testSource src
-  yield neutron
+  n <- lift $ runRVar beam src
+  case n of
+    Just neutron -> yield neutron
+    Nothing -> discard n
+ where
+    beam = beamline <$> startbox <*> targetbox <*> mySpread
 
 main :: IO ()
 main = do
