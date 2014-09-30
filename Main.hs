@@ -8,9 +8,10 @@ Stability   : experimental
 Portability : POSIX
 
 This module performs a monte-carlo simulation of a neutron beamline.-}
+{-# LANGUAGE FlexibleContexts #-}
 module Main (main) where
 
-import Neutron (getEnergy)
+import Neutron (getEnergy,Neutron)
 import Momentum (Energy(Energy))
 import Pipes
 import qualified Pipes.Prelude as P
@@ -23,7 +24,7 @@ import Data.Random
 import Data.Random.Source.PureMT
 import Data.IORef
 import Control.Comonad(extract)
-import Control.Monad (liftM)
+import Control.Monad (liftM,forever)
 import Linear (V3(V3))
 
 startbox :: RVar (V3 Double)
@@ -40,13 +41,22 @@ targetbox = do
 mySpread :: RVar (Energy Double)
 mySpread = liftM Energy $ normal 1.0 0.5
            
---main' :: (RandomSource IO s) => s -> IO ()
+main' :: (RandomSource IO s) => s -> IO ()
 -- | Simulate the beamline
-main' src = runEffect $ simpleSource src startbox targetbox mySpread >-> 
+main' src = runEffect $ producer src >->
             slit (V3 0 0 (-10)) (V3 0.4 0.9 10) >->
             P.take 1000000 >->
             histBuilder (extract.getEnergy) 40 (0,2) 50000 >->
             dumpToConsole
+
+testSource :: (RandomSource IO s) => s -> IO (Neutron Double)
+testSource = runRVar (simpleSource <$> startbox <*> targetbox <*> mySpread)
+
+
+producer :: (RandomSource IO s) => s -> Producer (Neutron Double) IO ()
+producer src = forever $ do
+  neutron <- lift $ testSource src
+  yield neutron
 
 main :: IO ()
 main = do
