@@ -18,13 +18,12 @@ import qualified Pipes.Prelude as P
 
 import Slits (slit)
 import Detector (dumpToConsole,histBuilder)
-import Source (simpleSource)
+import Source (simpleSource,producer)
 import Control.Applicative
 import Data.Random
 import Data.Random.Source.PureMT
 import Data.IORef
 import Control.Comonad(extract)
-import Control.Monad (liftM,forever)
 import Linear (V3(V3))
 
 startbox :: RVar (V3 Double)
@@ -43,7 +42,7 @@ mySpread = liftM Energy $ normal 1.0 0.5
            
 main' :: (RandomSource IO s) => s -> IO ()
 -- | Simulate the beamline
-main' src = runEffect $ producer src >->
+main' src = runEffect $ producer src beam >->
             P.take 1000000 >->
             histBuilder (extract.getEnergy) 40 (0,2) 50000 >->
             dumpToConsole
@@ -54,15 +53,8 @@ startSlit = slit (V3 0 0 (-10)) (V3 0.4 0.9 10)
 beamline :: (Momentum m) => V3 Double -> V3 Double -> m Double -> Maybe (Neutron Double)
 beamline start target momentum = startSlit $ simpleSource start target momentum
 
-
-producer :: (RandomSource IO s) => s -> Producer (Neutron Double) IO ()
-producer src = forever $ do
-  n <- lift $ runRVar beam src
-  case n of
-    Just neutron -> yield neutron
-    Nothing -> discard n
- where
-    beam = beamline <$> startbox <*> targetbox <*> mySpread
+beam :: RVar (Maybe (Neutron Double))
+beam = beamline <$> startbox <*> targetbox <*> mySpread
 
 main :: IO ()
 main = do
