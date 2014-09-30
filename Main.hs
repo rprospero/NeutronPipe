@@ -8,7 +8,7 @@ Stability   : experimental
 Portability : POSIX
 
 This module performs a monte-carlo simulation of a neutron beamline.-}
-{-# LANGUAGE FlexibleContexts, FlexibleInstances #-}
+{-# LANGUAGE FlexibleContexts, FlexibleInstances, MultiParamTypeClasses #-}
 module Main (main) where
 
 import Neutron (getEnergy,Neutron)
@@ -28,6 +28,9 @@ import Linear (V3(V3),Epsilon,nearZero)
 import Control.Monad (liftM)
 
 import Data.Vector as V
+import Data.Random.Distribution.Uniform (doubleUniform)
+import Data.Random.Distribution.Normal (doubleStdNormal)
+--import Data.Random.Distribution (rVarT)
 
 -- Step 1: Define the beamline
 -- Make a beamline function with parameters for every random value
@@ -58,7 +61,14 @@ instance Floating (V.Vector Double) where
     pi = V.replicate chunksize pi
 instance Epsilon (V.Vector Double) where
     nearZero = const False
-
+instance Distribution Uniform (Vector Double) 
+    where rvarT (Uniform a b) = V.zipWithM doubleUniform a b
+instance Distribution Normal (Vector Double) 
+    where 
+      rvarT StdNormal = V.replicateM chunksize doubleStdNormal
+      rvarT (Normal m s) = V.zipWith3 <$> pure (\ a b c -> a*b+c) <*> pure s <*> x <*> pure m
+          where
+            x = V.replicateM chunksize doubleStdNormal
 chunksize :: Int
 chunksize = 1000
 
@@ -98,9 +108,9 @@ beam = beamline <$> startbox <*> targetbox <*> mySpread
 main' :: (RandomSource IO s) => s -> IO ()
 -- | Simulate the beamline
 main' src = runEffect $ producer src beam >->
-            P.take 1000000 >->
+            P.take 10 >->
 --            histBuilder (extract.getEnergy) 40 (0,2) 50000 >->
-            dumpToConsole
+            P.drain
 
 main :: IO ()
 main = do
