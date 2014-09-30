@@ -12,8 +12,6 @@ This module provides a library of slits for simulating a neutron beamline
 
 module Slits (slit) where
 
-import Control.Monad (forever)
-
 import Linear
 import Neutron
 import Pipes
@@ -29,10 +27,6 @@ neutronComp :: Ord a => V3 a -> V3 a -> Neutron a -> Bool
 neutronComp a b n = let p = position n
                     in vecComp a p && vecComp p b
 
-filterPipe :: Monad m => (a->Bool) -> Pipe a a m b                      
--- | A pipe that takes a function f and only passes values that return true for f
-filterPipe = P.filter
-
 slit :: (Ord a , Monad m) => V3 a -> V3 a -> Pipe (Neutron a) (Neutron a) m b
 -- | A pipe that only accepts neutrons with positions between the two parameters
-slit lo hi = filterPipe (neutronComp lo hi)
+slit lo hi = P.filter (neutronComp lo hi)
