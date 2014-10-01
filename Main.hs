@@ -110,8 +110,8 @@ main' :: (RandomSource IO s) => s -> IO ()
 -- | Simulate the beamline
 main' src = runEffect $ producer src beam >->
             P.take 1000 >->
-            liftBuilder (extract.getEnergy) 40 (0,2) 50000 >->
-            P.drain
+            liftBuilder (extract.getEnergy) 40 (0,2) 50 >->
+            dumpToConsole
 
 main :: IO ()
 main = do
