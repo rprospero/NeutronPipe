@@ -52,9 +52,6 @@ instance Momentum Wavelength where
     getSpeed = (\a -> planck / a / neutronMass) . extract
     fromSpeed = Wavelength . (\s -> planck / s / neutronMass)
 
-uniformSpread :: (Distribution Uniform a, Num a) => a -> RVar a
-uniformSpread a = uniform (-a) a
-
 neutronMass :: Floating a => a
 {-# INLINE neutronMass #-}
 neutronMass = 1.67492735174e-27
