@@ -27,7 +27,7 @@ import Control.Comonad(extract)
 import Linear (V3(V3),Epsilon,nearZero)
 import Control.Monad (liftM)
 
-import Data.Vector as V
+import Data.Vector.Unboxed as V
 import Data.Random.Distribution.Uniform (doubleUniform)
 import Data.Random.Distribution.Normal (doubleStdNormal)
 --import Data.Random.Distribution (rVarT)
@@ -108,7 +108,7 @@ beam = beamline <$> startbox <*> targetbox <*> mySpread
 main' :: (RandomSource IO s) => s -> IO ()
 -- | Simulate the beamline
 main' src = runEffect $ producer src beam >->
-            P.take 10 >->
+            P.take 1000 >->
 --            histBuilder (extract.getEnergy) 40 (0,2) 50000 >->
             P.drain
 
