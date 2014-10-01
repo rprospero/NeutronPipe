@@ -61,6 +61,7 @@ histBuilder' f size n v = do
   let v2 = f event v
   seq v2 $ histBuilder' f size (n-1) v2
 
+{-# INLINABLE liftBuilder #-}
 liftBuilder :: (MonoFoldable t, Monad m, Element t ~ Double) => (a -> t) -> Int -> (Double,Double) -> Int -> Pipe a (V.Vector Int) m r
 liftBuilder f bins range delay = liftBuilder' updater delay delay zeroList
     where
