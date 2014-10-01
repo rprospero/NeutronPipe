@@ -1,10 +1,12 @@
-module Detector (dumpToFile,dumpToConsole,histBuilder) where
+{-# LANGUAGE GADTs #-}
+module Detector (dumpToFile,dumpToConsole,histBuilder,liftBuilder) where
 
 import Pipes
 
 import Control.Monad(forever)
 
 import qualified Data.Vector.Unboxed as V
+import Data.MonoTraversable
 
 import System.IO
 
@@ -55,6 +57,23 @@ histBuilder' f size 0 v = do
   yield v2
   seq v2 $ histBuilder' f size size v2
 histBuilder' f size n v = do
+  event <- await
+  let v2 = f event v
+  seq v2 $ histBuilder' f size (n-1) v2
+
+liftBuilder :: (MonoFoldable t, Monad m, Element t ~ Double) => (a -> t) -> Int -> (Double,Double) -> Int -> Pipe a (V.Vector Int) m r
+liftBuilder f bins range delay = liftBuilder' updater delay delay zeroList
+    where
+      zeroList = V.replicate bins 0
+      updater = flip (ofoldr (updateVector bins $ toBin bins range)) . f
+
+liftBuilder' :: Monad m => (a -> V.Vector Int -> V.Vector Int) -> Int -> Int -> V.Vector Int -> Pipe a (V.Vector Int) m r
+liftBuilder' f size 0 v = do
+  event <- await
+  let v2 = f event v
+  yield v2
+  seq v2 $ histBuilder' f size size v2
+liftBuilder' f size n v = do
   event <- await
   let v2 = f event v
   seq v2 $ histBuilder' f size (n-1) v2

@@ -17,7 +17,7 @@ import Pipes
 import qualified Pipes.Prelude as P
 
 import Slits (slit)
-import Detector (dumpToConsole,histBuilder)
+import Detector (dumpToConsole,liftBuilder)
 import Source (simpleSource,producer)
 import Control.Applicative
 import Data.Random
@@ -69,6 +69,7 @@ instance Distribution Normal (Vector Double)
       rvarT (Normal m s) = V.zipWith3 <$> pure (\ a b c -> a*b+c) <*> pure s <*> x <*> pure m
           where
             x = V.replicateM chunksize doubleStdNormal
+
 chunksize :: Int
 chunksize = 1000
 
@@ -109,7 +110,7 @@ main' :: (RandomSource IO s) => s -> IO ()
 -- | Simulate the beamline
 main' src = runEffect $ producer src beam >->
             P.take 1000 >->
---            histBuilder (extract.getEnergy) 40 (0,2) 50000 >->
+            liftBuilder (extract.getEnergy) 40 (0,2) 50000 >->
             P.drain
 
 main :: IO ()
