@@ -17,7 +17,7 @@ import Pipes
 import qualified Pipes.Prelude as P
 
 import Slits (slit)
-import Detector (dumpToConsole,histBuilder)
+import Detector (dumpToConsole,liftBuilder)
 import Source (simpleSource,producer)
 import Control.Applicative
 import Data.Random
@@ -27,7 +27,7 @@ import Control.Comonad(extract)
 import Linear (V3(V3),Epsilon,nearZero)
 import Control.Monad (liftM)
 
-import Data.Vector as V
+import Data.Vector.Unboxed as V
 import Data.Random.Distribution.Uniform (doubleUniform)
 import Data.Random.Distribution.Normal (doubleStdNormal)
 --import Data.Random.Distribution (rVarT)
@@ -69,6 +69,7 @@ instance Distribution Normal (Vector Double)
       rvarT (Normal m s) = V.zipWith3 <$> pure (\ a b c -> a*b+c) <*> pure s <*> x <*> pure m
           where
             x = V.replicateM chunksize doubleStdNormal
+
 chunksize :: Int
 chunksize = 1000
 
@@ -108,9 +109,9 @@ beam = beamline <$> startbox <*> targetbox <*> mySpread
 main' :: (RandomSource IO s) => s -> IO ()
 -- | Simulate the beamline
 main' src = runEffect $ producer src beam >->
-            P.take 10 >->
---            histBuilder (extract.getEnergy) 40 (0,2) 50000 >->
-            P.drain
+            P.take 1000 >->
+            liftBuilder (extract.getEnergy) 40 (0,2) 50 >->
+            dumpToConsole
 
 main :: IO ()
 main = do
