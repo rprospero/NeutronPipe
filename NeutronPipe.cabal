@@ -66,6 +66,8 @@ executable NeutronPipe
                        QuickCheck,
                        linear,
                        comonad,
+                       mono-traversable,
+                       random-source,
                        random
   
   -- Directories containing source files.
