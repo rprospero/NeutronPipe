@@ -11,7 +11,7 @@ This module performs a monte-carlo simulation of a neutron beamline.-}
 {-# LANGUAGE FlexibleContexts, FlexibleInstances, MultiParamTypeClasses #-}
 module Main (main) where
 
-import Neutron (getEnergy,Neutron,position)
+import Neutron (getEnergy,Neutron,position,advance)
 import Momentum (Energy(Energy),Momentum)
 import Pipes
 import qualified Pipes.Prelude as P
@@ -19,12 +19,13 @@ import qualified Pipes.Prelude as P
 import Slits (slit)
 import Detector (dumpToConsole,liftBuilder)
 import Source (simpleSource,producer)
+import Samples (scatter)
 import Control.Applicative
 import Data.Random
 import Data.Random.Source.PureMT
 import Data.IORef
 import Control.Comonad(extract)
-import Linear (V3(V3),Epsilon,nearZero)
+import Linear (V3(V3),Epsilon,nearZero,norm)
 import Control.Monad (liftM)
 
 import Data.Vector.Unboxed as V
@@ -76,8 +77,8 @@ chunksize = 1000
 startSlit :: Neutron (V.Vector Double) -> Maybe (Neutron (V.Vector Double))
 startSlit = slit (V3 0 0 (-10)) (V3 0.4 0.9 10)
 
-beamline :: (Momentum m) => V3 (V.Vector Double) -> V3 (V.Vector Double) -> m (V.Vector Double) -> Maybe (Neutron (V.Vector Double))
-beamline start target momentum = startSlit $ simpleSource start target momentum
+beamline :: (Momentum m) => V3 (V.Vector Double) -> V3 (V.Vector Double) -> m (V.Vector Double) -> V.Vector Double -> Maybe (Neutron (V.Vector Double))
+beamline start target momentum angle = liftM (advance 1 . scatter angle) . startSlit $ simpleSource start target momentum
 --beamline = error "Fail"
 
 -- Step 2: Define Random Variables
@@ -96,7 +97,7 @@ mySpread = liftM Energy $ normal 1.0 0.5
 -- This should have NO parameters and a type of RVar (Maybe (Neutron Double))
 
 beam :: RVar (Maybe (Neutron (V.Vector Double)))
-beam = beamline <$> startbox <*> targetbox <*> mySpread
+beam = beamline <$> startbox <*> targetbox <*> mySpread <*> uniform 0 (2*pi)
 --beam = error "Fail"
 
 -- Step 4: Run the beamline!
@@ -112,7 +113,7 @@ main' :: (RandomSource IO s) => s -> IO ()
 -- | Simulate the beamline
 main' src = runEffect $ producer src beam >->
             P.take 1000 >->
-            liftBuilder (x.position) 40 (-1,1) 50 >->
+            liftBuilder (norm.position) 11 (-5,5) 999 >->
             dumpToConsole
 
 main :: IO ()

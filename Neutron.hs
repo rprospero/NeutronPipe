@@ -23,10 +23,14 @@ data Neutron a = Neutron {position :: V3 a, -- ^ The location of the neutron
                          }
                deriving (Eq,Show)
 
+z :: V3 a -> a
+z (V3 _ _ n) = n
+
 advance :: (Epsilon a, Floating a, Num a) => a -> Neutron a -> Neutron a
--- ^ Progress forward in time, allowing a neutron to follow its velocity.
--- ^ The first argument is the time which has passed.
-advance t n = n {position = position n + (speed n * t) *^ (normalize . direction $n)}
+-- ^ Progress forward along the z direction
+advance d n = n {position = position n + (d / z dir) *^ dir}
+    where
+      dir = direction n
 
 
 getSpeed :: Floating a => Neutron a -> M.Speed a
