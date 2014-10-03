@@ -19,7 +19,7 @@ import qualified Pipes.Prelude as P
 import Slits (slit)
 import Detector (dumpToConsole,liftBuilder)
 import Source (simpleSource,producer)
-import Samples (scatter)
+import Samples (scatter,spheres)
 import Control.Applicative
 import Data.Random
 import Data.Random.Source.PureMT
@@ -97,7 +97,7 @@ mySpread = liftM Energy $ normal 1.0 0.5
 -- This should have NO parameters and a type of RVar (Maybe (Neutron Double))
 
 beam :: RVar (Maybe (Neutron (V.Vector Double)))
-beam = beamline <$> startbox <*> targetbox <*> mySpread <*> uniform 0 (2*pi) <*> normal 1 1
+beam = beamline <$> startbox <*> targetbox <*> mySpread <*> uniform 0 (2*pi) <*> spheres 10
 --beam = error "Fail"
 
 -- Step 4: Run the beamline!
@@ -113,7 +113,7 @@ main' :: (RandomSource IO s) => s -> IO ()
 -- | Simulate the beamline
 main' src = runEffect $ producer src beam >->
             P.take 1000 >->
-            liftBuilder (norm.position) 10 (0,10) 999 >->
+            liftBuilder (norm.position) 1000 (0,2) 999 >->
             dumpToConsole
 
 main :: IO ()
