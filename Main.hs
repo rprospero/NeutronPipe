@@ -77,8 +77,8 @@ chunksize = 1000
 startSlit :: Neutron (V.Vector Double) -> Maybe (Neutron (V.Vector Double))
 startSlit = slit (V3 0 0 (-10)) (V3 0.4 0.9 10)
 
-beamline :: (Momentum m) => V3 (V.Vector Double) -> V3 (V.Vector Double) -> m (V.Vector Double) -> V.Vector Double -> Maybe (Neutron (V.Vector Double))
-beamline start target momentum angle = liftM (advance 1 . scatter angle) . startSlit $ simpleSource start target momentum
+beamline :: (Momentum m) => V3 (V.Vector Double) -> V3 (V.Vector Double) -> m (V.Vector Double) -> V.Vector Double -> V.Vector Double -> Maybe (Neutron (V.Vector Double))
+beamline start target momentum angle q = liftM (advance 1 . scatter q angle) . startSlit $ simpleSource start target momentum
 --beamline = error "Fail"
 
 -- Step 2: Define Random Variables
@@ -97,7 +97,7 @@ mySpread = liftM Energy $ normal 1.0 0.5
 -- This should have NO parameters and a type of RVar (Maybe (Neutron Double))
 
 beam :: RVar (Maybe (Neutron (V.Vector Double)))
-beam = beamline <$> startbox <*> targetbox <*> mySpread <*> uniform 0 (2*pi)
+beam = beamline <$> startbox <*> targetbox <*> mySpread <*> uniform 0 (2*pi) <*> normal 1 1
 --beam = error "Fail"
 
 -- Step 4: Run the beamline!
@@ -113,7 +113,7 @@ main' :: (RandomSource IO s) => s -> IO ()
 -- | Simulate the beamline
 main' src = runEffect $ producer src beam >->
             P.take 1000 >->
-            liftBuilder (norm.position) 11 (-5,5) 999 >->
+            liftBuilder (norm.position) 10 (0,10) 999 >->
             dumpToConsole
 
 main :: IO ()
