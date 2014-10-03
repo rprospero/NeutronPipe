@@ -66,13 +66,14 @@ executable NeutronPipe
                        QuickCheck,
                        linear,
                        comonad,
+                       webkit,
                        mono-traversable,
                        random-source,
                        random
   
   -- Directories containing source files.
   -- hs-source-dirs:      
-  ghc-options: -auto-all
+  ghc-options: -auto-all -O3
   -- Base language which the package is written in.
   default-language:    Haskell2010
 
