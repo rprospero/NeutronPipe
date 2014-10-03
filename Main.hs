@@ -11,7 +11,7 @@ This module performs a monte-carlo simulation of a neutron beamline.-}
 {-# LANGUAGE FlexibleContexts, FlexibleInstances, MultiParamTypeClasses #-}
 module Main (main) where
 
-import Neutron (getEnergy,Neutron)
+import Neutron (getEnergy,Neutron,position)
 import Momentum (Energy(Energy),Momentum)
 import Pipes
 import qualified Pipes.Prelude as P
@@ -84,15 +84,10 @@ beamline start target momentum = startSlit $ simpleSource start target momentum
 -- Make a random variable for each of the values
 
 startbox :: RVar (V3 (V.Vector Double))
-startbox = V3 <$> uniform 0 1 <*> uniform 0 1 <*> pure 0
+startbox = pure $ V3 0 0 0
 
 targetbox :: RVar (V3 (V.Vector Double))
-targetbox = do
-  rho <- uniform 0 1
-  phi <- uniform 0 (2*pi)
-  let x0 = rho * cos phi
-  let y0 = rho * sin phi
-  return $ V3 x0 y0 1
+targetbox = pure $ V3 0 0 1
 
 mySpread :: RVar (Energy (V.Vector Double))
 mySpread = liftM Energy $ normal 1.0 0.5
@@ -106,11 +101,18 @@ beam = beamline <$> startbox <*> targetbox <*> mySpread
 
 -- Step 4: Run the beamline!
 
+x :: V3 a -> a
+x (V3 n _ _) = n
+y :: V3 a -> a
+y (V3 _ n _) = n
+z :: V3 a -> a
+z (V3 _ _ n) = n
+
 main' :: (RandomSource IO s) => s -> IO ()
 -- | Simulate the beamline
 main' src = runEffect $ producer src beam >->
             P.take 1000 >->
-            liftBuilder (extract.getEnergy) 40 (0,2) 50 >->
+            liftBuilder (x.position) 40 (-1,1) 50 >->
             dumpToConsole
 
 main :: IO ()
