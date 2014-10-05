@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
-module Metropolis (metropolis) where
+module Metropolis (metropolis,met) where
 
 import Data.Random
 
@@ -18,3 +18,19 @@ met' f xold = do
   return $ if fnew/original > test
            then xnew
            else xold
+ 
+met :: (Ord a, Fractional a, Distribution Uniform a) => (a -> a) -> Int -> RVar a
+met f count = last . take count . iterate looper $ uniform 0 5
+    where
+      looper = (mettest f =<<)
+
+mettest :: (Ord a, Fractional a, Distribution Uniform a) => (a -> a) -> a -> RVar a
+mettest f old = do
+  let yold = f old
+  step <- uniform (-0.01) 0.01
+  let xnew = old + step
+  let ynew = f xnew
+  test <- uniform 0 1
+  return $ if ynew/yold > test
+           then xnew
+           else old
