@@ -67,6 +67,7 @@ executable NeutronPipe
                        linear,
                        comonad,
                        mono-traversable,
+                       easyplot,
                        random-source,
                        random
   

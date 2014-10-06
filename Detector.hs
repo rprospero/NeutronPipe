@@ -1,5 +1,5 @@
 {-# LANGUAGE GADTs #-}
-module Detector (dumpToFile,dumpToConsole,histBuilder,liftBuilder) where
+module Detector (dumpToFile,dumpToConsole,histBuilder,liftBuilder,plotter) where
 
 import Pipes
 
@@ -9,6 +9,8 @@ import qualified Data.Vector.Unboxed as V
 import Data.MonoTraversable
 
 import System.IO
+
+import Graphics.EasyPlot
 
 dumpToFile :: (Show a) => FilePath -> Consumer a IO ()
 dumpToFile file = forever $ do
@@ -78,3 +80,15 @@ liftBuilder' f size n v = do
   event <- await
   let v2 = f event v
   seq v2 $ histBuilder' f size (n-1) v2
+
+-- Plotting
+
+plotter :: Consumer (V.Vector Int) IO r
+plotter = forever $ do
+            counts <- await
+            let points = zip [0..] . V.toList $ counts
+            lift $ print counts
+            lift $ plot X11 $ Data2D [Title "Test"] [] $ map makeLog points
+    where
+      makeLog (a,b) = (fromIntegral a,
+                       log $ fromIntegral b) :: (Double,Double)

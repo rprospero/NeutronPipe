@@ -17,7 +17,7 @@ import Pipes
 import qualified Pipes.Prelude as P
 
 import Slits (slit)
-import Detector (dumpToConsole,liftBuilder)
+import Detector (dumpToConsole,liftBuilder,plotter)
 import Source (simpleSource,producer)
 import Samples (scatter,spheres)
 import Control.Applicative
@@ -72,7 +72,7 @@ instance Distribution Normal (Vector Double)
             x = V.replicateM chunksize doubleStdNormal
 
 chunksize :: Int
-chunksize = 1000
+chunksize = 1
 
 startSlit :: Neutron (V.Vector Double) -> Maybe (Neutron (V.Vector Double))
 startSlit = slit (V3 0 0 (-10)) (V3 0.4 0.9 10)
@@ -97,8 +97,7 @@ mySpread = liftM Energy $ normal 1.0 0.5
 -- This should have NO parameters and a type of RVar (Maybe (Neutron Double))
 
 beam :: RVar (Maybe (Neutron (V.Vector Double)))
-beam = beamline <$> startbox <*> targetbox <*> mySpread <*> uniform 0 (2*pi) <*> spheres 10
---beam = error "Fail"
+beam = beamline <$> startbox <*> targetbox <*> mySpread <*> uniform 0 (2*pi) <*> spheres
 
 -- Step 4: Run the beamline!
 
@@ -109,12 +108,15 @@ y (V3 _ n _) = n
 z :: V3 a -> a
 z (V3 _ _ n) = n
 
+norm2d (V3 x y _) = sqrt $ x*x+y*y
+
 main' :: (RandomSource IO s) => s -> IO ()
 -- | Simulate the beamline
 main' src = runEffect $ producer src beam >->
-            P.take 1000 >->
-            liftBuilder (norm.position) 1000 (0,2) 999 >->
-            dumpToConsole
+            P.take 50010 >->
+            liftBuilder (norm2d.position) 200 (0,10) 50000 >->
+            plotter
+--            dumpToConsole
 
 main :: IO ()
 main = do
