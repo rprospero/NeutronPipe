@@ -88,8 +88,10 @@ Test-suite tests
                        vector,
                        transformers,
                        random-fu,
+                       random-source,
                        tasty,
                        tasty-quickcheck,
+                       tasty-hunit,
                        QuickCheck,
                        random
 
