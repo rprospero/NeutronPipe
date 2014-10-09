@@ -12,7 +12,7 @@ import System.IO
 
 import Graphics.EasyPlot
 
-dumpToFile :: (Show a) => FilePath -> Consumer String IO ()
+dumpToFile :: FilePath -> Consumer String IO ()
 dumpToFile file = forever $ do
                     temp <- await
                     h <- lift $ openFile file AppendMode

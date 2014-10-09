@@ -11,13 +11,13 @@ This module performs a monte-carlo simulation of a neutron beamline.-}
 {-# LANGUAGE FlexibleContexts, FlexibleInstances, MultiParamTypeClasses #-}
 module Main (main) where
 
-import Neutron (getEnergy,Neutron,position,advance)
+import Neutron (getEnergy,Neutron,position,direction,advance)
 import Momentum (Energy(Energy),Momentum)
 import Pipes
 import qualified Pipes.Prelude as P
 
 import Slits (slit)
-import Detector (dumpToConsole,liftBuilder,plotter)
+import Detector (dumpToConsole,liftBuilder,plotter,dumpToFile)
 import Source (simpleSource,producer)
 import Samples (scatter,spheres)
 import Control.Applicative
@@ -78,7 +78,7 @@ startSlit :: Neutron (V.Vector Double) -> Maybe (Neutron (V.Vector Double))
 startSlit = slit (V3 0 0 (-10)) (V3 0.4 0.9 10)
 
 beamline :: (Momentum m) => V3 (V.Vector Double) -> V3 (V.Vector Double) -> m (V.Vector Double) -> V.Vector Double -> V.Vector Double -> Maybe (Neutron (V.Vector Double))
-beamline start target momentum angle q = liftM (advance 1 . scatter q angle) . startSlit $ simpleSource start target momentum
+beamline start target momentum angle q = liftM ({- advance 1 . -}scatter q angle) . startSlit $ simpleSource start target momentum
 --beamline = error "Fail"
 
 -- Step 2: Define Random Variables
@@ -91,13 +91,14 @@ targetbox :: RVar (V3 (V.Vector Double))
 targetbox = pure $ V3 0 0 1
 
 mySpread :: RVar (Energy (V.Vector Double))
-mySpread = liftM Energy $ normal 1.0 0.5
+--mySpread = liftM Energy $ normal 1.0 0.5
+mySpread = liftM Energy $ spheres 20
 
 -- Step 3: Make a random beamline
 -- This should have NO parameters and a type of RVar (Maybe (Neutron Double))
 
 beam :: RVar (Maybe (Neutron (V.Vector Double)))
-beam = beamline <$> startbox <*> targetbox <*> mySpread <*> uniform 0 (2*pi) <*> spheres
+beam = beamline <$> startbox <*> targetbox <*> mySpread <*> uniform 0 (2*pi) <*> spheres 1
 
 -- Step 4: Run the beamline!
 
@@ -110,13 +111,24 @@ z (V3 _ _ n) = n
 
 norm2d (V3 x y _) = sqrt $ x*x+y*y
 
+xAndy n = show (V.head $ x $ d) Prelude.++ " " Prelude.++ show (V.head $ y $ d)
+    where
+      d = direction n
+
 main' :: (RandomSource IO s) => s -> IO ()
 -- | Simulate the beamline
 main' src = runEffect $ producer src beam >->
-            P.take 50010 >->
-            liftBuilder (norm2d.position) 200 (0,10) 50000 >->
-            plotter
---            dumpToConsole
+           P.take 5000000 >->
+           P.map xAndy >->
+--           liftBuilder (norm2d.position) 200 (0,10) 50000 >->
+           dumpToFile "values.dat"
+--           plotter
+--           dumpToConsole
+
+-- --main' :: RandomSource IO s => s -> IO ()
+-- main' s = runEffect $ P.repeatM (runRVar (spheres (1 :: Double)) s) >->
+--           P.take 500000 >->
+--           dumpToFile "values.dat"
 
 main :: IO ()
 main = do
